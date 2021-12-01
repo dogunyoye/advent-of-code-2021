@@ -3,8 +3,6 @@ package com.github.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Day01 {
 
@@ -20,12 +18,15 @@ public class Day01 {
     }
 
     public static int calculateIncreasesSlidingWindow(int[] depths) {
-        final List<Integer> windows = new ArrayList<Integer>();
+        int increases = 0;
         for (int i = 0; i < depths.length - 2; i++) {
-            windows.add(depths[i] + depths[i+1] + depths[i+2]);
+            depths[i] = depths[i] + depths[i+1] + depths[i+2];
+            if (i > 0 && depths[i-1] < depths[i]) {
+                increases++;
+            }
         }
 
-        return calculateIncreases(windows.stream().mapToInt(i -> i).toArray());
+        return increases;
     }
 
     public static void main( String[] args ) throws IOException {
