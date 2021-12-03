@@ -42,7 +42,8 @@ public class Day03 {
         return Integer.parseInt(gammaString.toString(), 2) * Integer.parseInt(epsilonString.toString(), 2);
     }
 
-    public static int findRating(List<String> report, ReportFilter<Integer, Integer, Integer, List<String>> filter) {
+    private static int findRating(List<String> report, ReportFilter<Integer, Integer, Integer, List<String>> filter) {
+
         final int length = report.get(0).length();
         boolean terminate = false;
 
