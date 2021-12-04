@@ -41,10 +41,11 @@ public class Day04 {
         }
 
         public boolean checkWin() {
-            // check rows
             boolean allChecked = false;
             for (int i = 0; i < 5; i++) {
                 allChecked = true;
+
+                // check rows
                 for (int j = 0; j < 5; j++) {
                     if (this.grid[i][j] != -1) {
                         allChecked = false;
@@ -52,15 +53,15 @@ public class Day04 {
                     }
                 }
 
+                // winning row
                 if (allChecked) {
                     this.winner = true;
                     return true;
                 }
-            }
 
-            // check columns
-            for (int i = 0; i < 5; i++) {
                 allChecked = true;
+
+                // check columns
                 for (int j = 0; j < 5; j++) {
                     if (this.grid[j][i] != -1) {
                         allChecked = false;
@@ -68,6 +69,7 @@ public class Day04 {
                     }
                 }
 
+                // winning column
                 if (allChecked) {
                     this.winner = true;
                     return true;
