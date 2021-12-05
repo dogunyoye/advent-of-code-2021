@@ -109,9 +109,9 @@ public class Day05 {
                         insertToMap(new Coordinate(x, seg.a.y), intersections);
                     });
                 } else {
-                    final double m = (seg.a.y - seg.b.y)/(seg.a.x -seg.b.x);
+                    final int m = (seg.a.y - seg.b.y)/(seg.a.x -seg.b.x);
                     xRange.forEach((x) -> {
-                        int y = (int)(m * (x - seg.a.x) + seg.a.y);
+                        int y = m * (x - seg.a.x) + seg.a.y;
                         insertToMap(new Coordinate(x, y), intersections);
                     });
                 }
