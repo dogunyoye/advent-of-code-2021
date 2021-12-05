@@ -133,7 +133,7 @@ public class Day04 {
         // skip first blank line
         iter.next();
 
-        BingoCard b = new BingoCard();
+        BingoCard card = new BingoCard();
         int rowIndex = 0;
 
         while(iter.hasNext()) {
@@ -145,19 +145,19 @@ public class Day04 {
                     .mapToInt(Integer::parseInt)
                     .toArray();
 
-                b.fill(rowIndex, lineNumbers);
+                card.fill(rowIndex, lineNumbers);
                 rowIndex++;
                 continue;
             }
 
-            bingoCards.add(b);
+            bingoCards.add(card);
             // reset for new card
-            b = new BingoCard();
+            card = new BingoCard();
             rowIndex = 0;
         }
 
         // add last card
-        bingoCards.add(b);
+        bingoCards.add(card);
         return bingoCards;
     }
 
