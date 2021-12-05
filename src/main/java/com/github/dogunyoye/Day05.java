@@ -63,7 +63,7 @@ public class Day05 {
         
     }
     
-    public static List<LineSegment> generateLineSegments(Stream<String> stream) {
+    static List<LineSegment> generateLineSegments(Stream<String> stream) {
         final List<LineSegment> segments = new ArrayList<>();
         stream
             .forEach((str) -> {
@@ -76,7 +76,7 @@ public class Day05 {
         return segments;
     }
 
-    private static void insertToMap(Coordinate c, Map<Coordinate, Integer> intersections) {
+    private static void markCoordinate(Coordinate c, Map<Coordinate, Integer> intersections) {
         if (intersections.containsKey(c)) {
             intersections.put(c, intersections.get(c) + 1);
         } else {
@@ -94,25 +94,25 @@ public class Day05 {
 
         stream
             .forEach((seg) -> {
-                insertToMap(seg.a, intersections);
-                insertToMap(seg.b, intersections);
+                markCoordinate(seg.a, intersections);
+                markCoordinate(seg.b, intersections);
 
                 final IntStream xRange = IntStream.range(Math.min(seg.a.x, seg.b.x) + 1, Math.max(seg.a.x, seg.b.x));
                 final IntStream yRange = IntStream.range(Math.min(seg.a.y, seg.b.y) + 1, Math.max(seg.a.y, seg.b.y));
 
                 if (seg.a.x == seg.b.x) {
                     yRange.forEach((y) -> {
-                        insertToMap(new Coordinate(seg.a.x, y), intersections);
+                        markCoordinate(new Coordinate(seg.a.x, y), intersections);
                     });
                 } else if (seg.a.y == seg.b.y) {
                     xRange.forEach((x) -> {
-                        insertToMap(new Coordinate(x, seg.a.y), intersections);
+                        markCoordinate(new Coordinate(x, seg.a.y), intersections);
                     });
                 } else {
                     final int m = (seg.a.y - seg.b.y)/(seg.a.x -seg.b.x);
                     xRange.forEach((x) -> {
                         int y = m * (x - seg.a.x) + seg.a.y;
-                        insertToMap(new Coordinate(x, y), intersections);
+                        markCoordinate(new Coordinate(x, y), intersections);
                     });
                 }
             });
