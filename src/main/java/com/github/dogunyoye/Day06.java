@@ -3,6 +3,7 @@ package com.github.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -20,21 +21,15 @@ public class Day06 {
 
             for (int i = 1; i < fishes.length; i++) {
                 fishes[i-1] = fishes[i];
-                fishes[i] = 0;
             }
 
             fishes[6] += newFishes;
-            fishes[8] += newFishes;
+            fishes[8] = newFishes;
 
             days--;
         }
 
-        long sum = 0;
-        for (long n : fishes) {
-            sum += n;
-        }
-
-        return sum;
+        return Arrays.stream(fishes).sum();
     }
     
 
