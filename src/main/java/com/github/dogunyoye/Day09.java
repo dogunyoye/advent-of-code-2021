@@ -65,12 +65,8 @@ public class Day09 {
                     break;
             }
 
-            if (current == map[x][y]) {
-                return false;
-            }
-
             final int min = Math.min(current, map[x][y]);
-            if (min != current) {
+            if (current == map[x][y] || min != current) {
                 return false;
             }
         }
@@ -79,7 +75,6 @@ public class Day09 {
     }
 
     private static void recurseBasin(int[][] map, Set<Coordinate> visited, int length, int depth, int i, int j, AtomicInteger counter) {
-
         for (Direction d : Direction.values()) {
             int x = 0;
             int y = 0;
@@ -150,7 +145,6 @@ public class Day09 {
     }
 
     public static int sumOfLowPointRiskLevels(int[][] map, int length, int depth, List<Coordinate> lowPoints) {
-
         int sum = 0;
         for (int i = 0; i < depth; i++) {
             for (int j = 0; j < length; j++) {
@@ -165,16 +159,15 @@ public class Day09 {
     }
 
     public static int findBasins(int[][] map, int length, int depth, List<Coordinate> lowPoints) {
-
         final List<Integer> basinSizes = new ArrayList<>();
         final Set<Coordinate> visited = new HashSet<>(lowPoints);
 
-        for (Coordinate c : lowPoints) {
+        lowPoints.forEach((point) -> {
             final AtomicInteger counter = new AtomicInteger();
             counter.incrementAndGet();
-            recurseBasin(map, visited, length, depth, c.x, c.y, counter);
+            recurseBasin(map, visited, length, depth, point.x, point.y, counter);
             basinSizes.add(counter.get());
-        }
+        });
 
         basinSizes.sort(Integer::compareTo);
         return basinSizes.get(basinSizes.size()-1) * basinSizes.get(basinSizes.size()-2) * basinSizes.get(basinSizes.size()-3);
