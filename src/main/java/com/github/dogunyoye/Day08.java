@@ -108,16 +108,16 @@ public class Day08 {
                 }
             });
 
-            final List<String> concat = Stream.concat(signalPattern.stream(), outputValue.stream())
+            final List<String> inputsToSolve = Stream.concat(signalPattern.stream(), outputValue.stream())
                 .filter(s -> (s.length() != 2 || s.length() != 4 || s.length() != 3 || s.length() != 7))
                 .collect(Collectors.toList());
 
             // sort from smallest to largest
             // working out the smaller inputs will help solve larger inputs
-            concat.sort(Comparator.comparingInt(String::length));
+            inputsToSolve.sort(Comparator.comparingInt(String::length));
 
-            concat.forEach((seq) -> {
-                decompose(seq.length(), seq);
+            inputsToSolve.forEach((input) -> {
+                decompose(input.length(), input);
             });
 
             String number = "";
@@ -127,7 +127,7 @@ public class Day08 {
                 for (Map.Entry<Integer, String> entry : results.entrySet()) {
                     final Set<Character> signalSet = stringToSet(entry.getValue());
                     if (outputSet.equals(signalSet)) {
-                        number += "" + entry.getKey();
+                        number += entry.getKey().toString();
                         break;
                     }
                 }
