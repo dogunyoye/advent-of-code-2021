@@ -31,13 +31,13 @@ public class Day08 {
 
         public void logUniqueSegment(int length, String seq) {
             if (length == 2) {
-                this.results.put(1, seq);
+                results.put(1, seq);
             } else if (length == 4) {
-                this.results.put(4, seq);
+                results.put(4, seq);
             } else if (length == 3) {
-                this.results.put(7, seq);
+                results.put(7, seq);
             } else {
-                this.results.put(8, seq);
+                results.put(8, seq);
             }
         }
 
@@ -100,7 +100,7 @@ public class Day08 {
             }
         }
 
-        public int deduce() {
+        public int deduceSignalValue() {
             signalPattern.forEach((e) -> {
                 final int l = e.length();
                 if (l == 2 || l == 4 || l == 3 || l == 7) {
@@ -167,7 +167,7 @@ public class Day08 {
     public static int findOutputValuesSum(List<SignalEntry> signalEntries) {
         int sum = 0;
         for (SignalEntry e : signalEntries) {
-            sum += e.deduce();
+            sum += e.deduceSignalValue();
         }
 
         return sum;
