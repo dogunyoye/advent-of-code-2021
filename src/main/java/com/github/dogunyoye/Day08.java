@@ -29,7 +29,7 @@ public class Day08 {
             this.results = new HashMap<>();
         }
 
-        public void logResult(int length, String seq) {
+        public void logUniqueSegment(int length, String seq) {
             if (length == 2) {
                 this.results.put(1, seq);
             } else if (length == 4) {
@@ -54,7 +54,7 @@ public class Day08 {
             final Set<Character> set = stringToSet(seq);
             switch(length) {
 
-                // [ 2, 3, 5 ]
+                // [ 2, 3, 5 ] => length 5
                 case 5 -> {
                     final Set<Character> digit7 = getCharacterSet(7);
                     set.removeAll(digit7);
@@ -74,7 +74,7 @@ public class Day08 {
                     }
                 }
 
-                // [ 0, 6, 9 ]
+                // [ 0, 6, 9 ] => length 6
                 case 6 -> {
                     final Set<Character> digit5 = getCharacterSet(5);
                     set.removeAll(digit5);
@@ -104,11 +104,12 @@ public class Day08 {
             signalPattern.forEach((e) -> {
                 final int l = e.length();
                 if (l == 2 || l == 4 || l == 3 || l == 7) {
-                    logResult(l, e);
+                    logUniqueSegment(l, e);
                 }
             });
 
             final List<String> concat = Stream.concat(signalPattern.stream(), outputValue.stream())
+                .filter(s -> (s.length() != 2 || s.length() != 4 || s.length() != 3 || s.length() != 7))
                 .collect(Collectors.toList());
 
             // sort from smallest to largest
@@ -154,7 +155,7 @@ public class Day08 {
             for (String ov : e.outputValue) {
                 final int l = ov.length();
                 if (l == 2 || l == 4 || l == 3 || l == 7) {
-                    e.logResult(l, ov);
+                    e.logUniqueSegment(l, ov);
                     result.incrementAndGet();
                 }
             }
