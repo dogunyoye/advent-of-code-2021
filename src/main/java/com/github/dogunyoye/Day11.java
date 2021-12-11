@@ -116,13 +116,12 @@ public class Day11 {
 
         flashed.add(c);
         final List<Coordinate> neighbours = getNeighbours(map, length, depth, c.x, c.y);
-
-        for (Coordinate n : neighbours) {
+        neighbours.forEach((n) -> {
             map[n.x][n.y]++;
             if (map[n.x][n.y] == 10) {
                 octopusFlash(map, flashed, length, depth, n);
             }
-        }
+        });
     }
 
     public static int simulateDumboOctopusFlashes(int[][] map, int steps, int length, int depth) {
@@ -146,12 +145,12 @@ public class Day11 {
                 }
             }
 
+            steps--;
+
             for (Coordinate fo : flashed) {
                 map[fo.x][fo.y] = 0;
                 sum++;
             }
-
-            steps--;
         }
 
         return sum;
