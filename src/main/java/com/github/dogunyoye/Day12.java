@@ -3,8 +3,6 @@ package com.github.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +51,12 @@ public class Day12 {
         return map;
     }
 
-    public static void traverseCaveSystem(Map<String, List<String>> map, String cave, Set<String> visited, Stack<String> path, AtomicInteger counter) {
+    public static void traverseCaveSystem(
+        Map<String, List<String>> map,
+        String cave,
+        Set<String> visited,
+        Stack<String> path,
+        AtomicInteger counter) {
 
         if (cave.equals("end")) {
             counter.incrementAndGet();
