@@ -87,8 +87,7 @@ public class Day13 {
             case UP:
                 for (int yy = ins.line + 1; yy < yBound; yy++) {
                     for (int xx = 0; xx < xBound; xx++) {
-                        final int diff = yy - ins.line;
-                        final int newY = ins.line - diff;
+                        final int newY = (2 * ins.line) - yy;
                         if (paper[yy][xx].equals("#")) {
                             paper[newY][xx] = "#";
                             paper[yy][xx] = ".";
@@ -100,8 +99,7 @@ public class Day13 {
             case LEFT:
                 for (int yy = 0; yy < yBound; yy++) {
                     for (int xx = ins.line + 1; xx < xBound; xx++) {
-                        final int diff = xx - ins.line;
-                        final int newX = ins.line - diff;
+                        final int newX = (2 * ins.line) - xx;
                         if (paper[yy][xx].equals("#")) {
                             paper[yy][newX] = "#";
                             paper[yy][xx] = ".";
