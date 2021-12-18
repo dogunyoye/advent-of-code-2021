@@ -329,6 +329,9 @@ public class Day16 {
             }
         }
 
+        // reverse the collection so that the packets are "in order"
+        // i.e sub packets aren't evaluated before packets containing sub packets
+        // a.k.a parent packets
         Collections.reverse(packets);
 
         long sum = 0;
