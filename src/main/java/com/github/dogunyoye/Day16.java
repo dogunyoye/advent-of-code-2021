@@ -321,15 +321,6 @@ public class Day16 {
 
     public static long findResult(List<Packet> packets) {
 
-        // janky hack to constrain the 2 sub packet max operations
-        // as have observed more than 2 for some packets..
-        // doesn't seem to yield a parsing/value error though
-        for (Packet p : packets) {
-            if (p.typeId == 5 || p.typeId == 6 || p.typeId == 7) {
-                p.subPackets = p.getSubPackets().stream().limit(2).toList();
-            }
-        }
-
         // reverse the collection so that the packets are "in order"
         // i.e sub packets aren't evaluated before packets containing sub packets
         // a.k.a parent packets
