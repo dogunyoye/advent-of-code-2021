@@ -83,7 +83,7 @@ public class Day16 {
         return Long.parseLong(binary, 2);
     }
 
-    private static Long getLiteralBinaryNumber(Queue<String> queue, Mode m, AtomicLong counter) {
+    private static Long getLiteralBinaryNumber(Queue<String> queue, AtomicLong counter) {
 
         String number = "";
         while (true) {
@@ -94,9 +94,7 @@ public class Day16 {
                     s += "0";
                 } else {
                     s += bit;
-                    if (m == Mode.LENGTH_BITS) {
-                        counter.decrementAndGet();
-                    }
+                    counter.incrementAndGet();
                 }
             }
 
@@ -139,48 +137,44 @@ public class Day16 {
         return pollQueue(queue, 11);
     }
 
-    private static void parsePacket(List<Packet> packets, Queue<String> queue, Mode m, AtomicLong counter) {
+    private static long parsePacket(List<Packet> packets, Queue<String> queue) {
 
-        // queue filled with residual 0's terminate
-        if (queue.stream().distinct().toList().size() == 1) {
-            counter.set(0);
-            return;
-        }
+        long consumed = 0;
+        final AtomicLong c = new AtomicLong();
 
         final long version = getVersionAndTypeId(queue);
         final long typeId = getVersionAndTypeId(queue);
-
-        if (m == Mode.LENGTH_BITS) {
-            counter.set(counter.get() - 6);
-        }
+        consumed += 6;
 
         switch((int)typeId) {
             case 4 -> {
-                final long literalNumber = getLiteralBinaryNumber(queue, m, counter);
+                final long literalNumber = getLiteralBinaryNumber(queue, c);
                 packets.add(new Packet(version, typeId, literalNumber));
             }
 
             default -> {
                 final String lengthTypeId = queue.poll();
+                consumed++;
 
-                AtomicLong c;
                 final Packet p = new Packet(version, typeId);
     
                 if (lengthTypeId.equals("0")) {
-                    final long subPacketsLength = getLengthOfSubPacketBits(queue);
+                    long subPacketsLength = getLengthOfSubPacketBits(queue);
+                    consumed += 15;
     
-                    c = new AtomicLong(subPacketsLength);
-                    while(c.get() != 0) {
-                        parsePacket(packets, queue, Mode.LENGTH_BITS, c);
+                    while(subPacketsLength != 0) {
+                        long bits = parsePacket(packets, queue);
+                        subPacketsLength -= bits;
+                        consumed += bits;
                         p.getSubPackets().add(packets.get(packets.size()-1));
                     }
     
                 } else {
                     final long numberOfSubPackets = getNumberOfSubPackets(queue);
-    
-                    c = new AtomicLong(numberOfSubPackets);
-                    while(c.get() != 0) {
-                        parsePacket(packets, queue, Mode.LENGTH_PACKETS, c);
+                    consumed += 11;
+
+                    for (int i = 0; i < numberOfSubPackets; i++) {
+                        consumed += parsePacket(packets, queue);
                         p.getSubPackets().add(packets.get(packets.size()-1));
                     }
                 }
@@ -189,9 +183,7 @@ public class Day16 {
             }
         }
 
-        if (m == Mode.LENGTH_PACKETS) {
-            counter.decrementAndGet();
-        }
+        return consumed + c.get();
     }
 
     private static String hexToBinary(String hexString) {
@@ -213,9 +205,18 @@ public class Day16 {
         }
 
         final List<Packet> packets = new ArrayList<>();
-        parsePacket(packets, queue, Mode.NORMAL, null);
+        long consumed = parsePacket(packets, queue);
 
-        return packets;
+        // The length of the original binary string
+        // should equal however many bits we consumed
+        // in the parsing + any residual trailing bits
+        if (bin.length() == (consumed + queue.size())) {
+            System.out.println("Parsing complete!");
+            return packets;
+        }
+
+        System.out.println("Error with parsing!");
+        return null;
     }
 
     private static long parsePacketResult(Set<Packet> evaluated, Packet p) {
