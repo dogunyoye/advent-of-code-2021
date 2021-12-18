@@ -17,12 +17,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Day16 {
 
-    public enum Mode {
-        NORMAL,
-        LENGTH_BITS,
-        LENGTH_PACKETS
-    }
-
     private static final Map<String, String> hexTable;
     static {
         Map<String, String> map = new HashMap<>();
