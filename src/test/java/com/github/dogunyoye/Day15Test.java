@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.github.dogunyoye.Day15.Coordinate;
+import com.github.dogunyoye.Day15.Node;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,8 +20,8 @@ public class Day15Test {
     private static final  int LENGTH = 10;
     private static final int DEPTH = 10;
 
-    private static final Coordinate START = new Coordinate(0,0);
-    private static Coordinate end = new Coordinate(DEPTH-1, LENGTH-1);
+    private static final Node START = new Node(0,0);
+    private static Node end = new Node(DEPTH-1, LENGTH-1);
 
     @BeforeClass
     public static void setUp() throws IOException {
@@ -38,7 +38,7 @@ public class Day15Test {
 
     @Test
     public void testPartTwo() {
-        end = new Coordinate((DEPTH * 5) - 1, (LENGTH * 5) - 1);
+        end = new Node((DEPTH * 5) - 1, (LENGTH * 5) - 1);
         assertEquals(315, Day15.djikstra(megaMap, START, end, LENGTH * 5, DEPTH * 5));
     }
 }
