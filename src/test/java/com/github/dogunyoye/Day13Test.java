@@ -46,6 +46,6 @@ public class Day13Test {
     public void testPartTwo() {
         // part 2 is visual, you should see an 0
         Day13.findVisibleDots(1, fInstructions.size(), paper, fInstructions, yLimit, xLimit);
-        Day13.visualisePaper(paper);
+        Day13.visualisePaper(paper, 10);
     }  
 }

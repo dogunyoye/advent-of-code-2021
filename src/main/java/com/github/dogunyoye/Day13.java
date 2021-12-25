@@ -122,10 +122,10 @@ public class Day13 {
         return counter;
     }
 
-    public static void visualisePaper(String[][] paper) {
+    public static void visualisePaper(String[][] paper, int len) {
         for (String[] line : paper) {
             if (Arrays.asList(line).contains("#")) {
-                final String[] a = Arrays.copyOf(line, 45);
+                final String[] a = Arrays.copyOf(line, len);
                 System.out.println(Arrays.toString(a));
             }
         }
@@ -145,6 +145,6 @@ public class Day13 {
         System.out.println("Part 2:"); 
         
         findVisibleDots(1, fInstructions.size(), paper, fInstructions, yLimit.get(), xLimit.get());
-        visualisePaper(paper);
+        visualisePaper(paper, 45);
     }
 }
