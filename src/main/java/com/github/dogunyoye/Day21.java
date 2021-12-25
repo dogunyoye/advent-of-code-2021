@@ -133,7 +133,7 @@ public class Day21 {
         PlayerName turn) {
 
         final PlayerName next = turn == PlayerName.PLAYER_ONE ? PlayerName.PLAYER_TWO : PlayerName.PLAYER_ONE;
-        GameState gameState = new GameState(p1Pos, p1Score, p2Pos, p2Score, next);
+        final GameState gameState = new GameState(p1Pos, p1Score, p2Pos, p2Score, next);
 
         if (p1Score >= 21) {
             return new long[]{1, 0};
