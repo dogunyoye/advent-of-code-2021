@@ -31,18 +31,21 @@ public class Day21 {
         public int playerOneScore;
         public int playerTwoPosition;
         public int playerTwoScore;
+        public PlayerName nextTurn;
 
-        public GameState(int playerOnePosition, int playerOneScore, int playerTwoPosition, int playerTwoScore) {
+        public GameState(int playerOnePosition, int playerOneScore, int playerTwoPosition, int playerTwoScore, PlayerName next) {
             this.playerOnePosition = playerOnePosition;
             this.playerOneScore = playerOneScore;
             this.playerTwoPosition = playerTwoPosition;
             this.playerTwoScore = playerTwoScore;
+            this.nextTurn = next;
         }
 
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
+            result = prime * result + ((nextTurn == null) ? 0 : nextTurn.hashCode());
             result = prime * result + playerOnePosition;
             result = prime * result + playerOneScore;
             result = prime * result + playerTwoPosition;
@@ -59,6 +62,8 @@ public class Day21 {
             if (getClass() != obj.getClass())
                 return false;
             GameState other = (GameState) obj;
+            if (nextTurn != other.nextTurn)
+                return false;
             if (playerOnePosition != other.playerOnePosition)
                 return false;
             if (playerOneScore != other.playerOneScore)
@@ -127,7 +132,8 @@ public class Day21 {
         int p2Pos,
         PlayerName turn) {
 
-        GameState gameState = new GameState(p1Pos, p1Score, p2Pos, p2Score);
+        final PlayerName next = turn == PlayerName.PLAYER_ONE ? PlayerName.PLAYER_TWO : PlayerName.PLAYER_ONE;
+        GameState gameState = new GameState(p1Pos, p1Score, p2Pos, p2Score, next);
 
         if (p1Score >= 21) {
             return new long[]{1, 0};
@@ -172,8 +178,10 @@ public class Day21 {
         return count;
     }
 
-    public static long findWinsInMostUniverses(long[] wins) {
-        return Math.max(wins[0], wins[1]);
+    public static long findWinsInMostUniverses(Player[] players) {
+        final Map<GameState, long[]> memo = new HashMap<>();
+        final long[] result = playQuantumDiracDice(memo, 0, 0, players[0].position, players[1].position, PlayerName.PLAYER_ONE);
+        return Math.max(result[0], result[1]);
     }
     
     public static void main( String[] args ) throws IOException {
@@ -183,9 +191,6 @@ public class Day21 {
         System.out.println("Part 1: " + playDiracDice(players));
 
         players = generatePlayers(input);
-        final Map<GameState, long[]> memo = new HashMap<>();
-        final long[] result = playQuantumDiracDice(memo, 0, 0, players[0].position, players[1].position, PlayerName.PLAYER_ONE);
-
-        System.out.println("Part 2: " + findWinsInMostUniverses(result));
+        System.out.println("Part 2: " + findWinsInMostUniverses(players));
     }
 }
