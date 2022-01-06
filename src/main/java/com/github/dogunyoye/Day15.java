@@ -33,7 +33,7 @@ public class Day15 {
     static class Node {
         public int x;
         public int y;
-        public int cost = 0;
+        public int cost;
 
         public Node(int x, int y) {
             this.x = x;
@@ -334,8 +334,7 @@ public class Day15 {
     }
 
     public static int[][] buildMegaMap(int[][] map, int length, int depth) {
-        map = stretchMapHorizontal(map, length);
-        return combine(map, stretchMapVertically(map, length, depth));
+        return combine(stretchMapHorizontal(map, length), stretchMapVertically(map, length, depth));
     }
 
     public static void main( String[] args ) throws IOException {
