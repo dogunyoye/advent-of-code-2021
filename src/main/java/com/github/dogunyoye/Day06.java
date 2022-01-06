@@ -17,7 +17,7 @@ public class Day06 {
         }
 
         while (days != 0) {
-            long newFishes = fishes[0];
+            final long newFishes = fishes[0];
 
             for (int i = 1; i < fishes.length; i++) {
                 fishes[i-1] = fishes[i];
