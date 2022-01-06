@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 public class Day10 {
 
@@ -15,7 +16,6 @@ public class Day10 {
 
         for (String p : split) {
             if (!p.equals(")") && !p.equals("]") && !p.equals("}") && !p.equals(">")) {
-                // an open parentheses
                 stack.push(p);
                 continue;
             }
@@ -46,12 +46,7 @@ public class Day10 {
         }
 
         if (!stack.isEmpty()) {
-            String s = "";
-            for (String p : stack) {
-                s += p;
-            }
-
-            incompleteLines.add(s);
+            incompleteLines.add(stack.stream().collect(Collectors.joining("")));
         }
 
         return "";
