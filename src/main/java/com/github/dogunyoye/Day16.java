@@ -83,7 +83,7 @@ public class Day16 {
         while (true) {
             String s = "";
             for (int i = 0; i < 5; i++) {
-                String bit = queue.poll();
+                final String bit = queue.poll();
                 if (bit == null) {
                     s += "0";
                 } else {
@@ -94,7 +94,7 @@ public class Day16 {
 
             number += s.substring(1);
 
-            char firstBit = s.charAt(0);
+            final char firstBit = s.charAt(0);
             if (firstBit == '1') {
                 continue;
             }
@@ -109,7 +109,7 @@ public class Day16 {
     private static long pollQueue(Queue<String> queue, int bits) {
         String s = "";
         for (int i = 0; i < bits; i++) {
-            String bit = queue.poll();
+            final String bit = queue.poll();
             if (bit == null) {
                 return 0;
             }
@@ -157,7 +157,7 @@ public class Day16 {
                     consumed += 15;
     
                     while(subPacketsLength != 0) {
-                        long bits = parsePacket(packets, queue);
+                        final long bits = parsePacket(packets, queue);
                         subPacketsLength -= bits;
                         consumed += bits;
                         p.getSubPackets().add(packets.get(packets.size()-1));
@@ -190,27 +190,25 @@ public class Day16 {
     }
 
     public static List<Packet> parsePackets(String hexString) {
-        final String bin = hexToBinary(hexString);
+        final String binary = hexToBinary(hexString);
 
         final Queue<String> queue = new LinkedList<>();
 
-        for (Character c : bin.toCharArray()) {
+        for (Character c : binary.toCharArray()) {
             queue.add(c.toString());
         }
 
         final List<Packet> packets = new ArrayList<>();
-        long consumed = parsePacket(packets, queue);
+        final long consumed = parsePacket(packets, queue);
 
         // The length of the original binary string
         // should equal however many bits we consumed
         // in the parsing + any residual trailing bits
-        if (bin.length() == (consumed + queue.size())) {
-            System.out.println("Parsing complete!");
+        if (binary.length() == (consumed + queue.size())) {
             return packets;
         }
 
-        System.out.println("Error with parsing!");
-        return null;
+        throw new RuntimeException("Error with parsing");
     }
 
     private static long parsePacketResult(Set<Packet> evaluated, Packet p) {
@@ -260,6 +258,7 @@ public class Day16 {
                 return max;
             }
 
+            // literal value
             case 4 -> {
                 return p.getLiteralValue();
             }
@@ -307,8 +306,7 @@ public class Day16 {
             }
 
             default -> {
-                System.out.println("Error! Unknown type id: " + typeId);
-                return -1;
+                throw new RuntimeException("Error! Unknown type id: " + typeId);
             }
         }
     }
@@ -316,8 +314,8 @@ public class Day16 {
     public static long findResult(List<Packet> packets) {
 
         // reverse the collection so that the packets are "in order"
-        // i.e sub packets aren't evaluated before packets containing sub packets
-        // a.k.a parent packets
+        // i.e sub packets aren't evaluated before packets containing
+        // sub packets a.k.a parent packets
         Collections.reverse(packets);
 
         long sum = 0;
