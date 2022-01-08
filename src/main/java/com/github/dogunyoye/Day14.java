@@ -101,7 +101,7 @@ public class Day14 {
             }
 
             pairs.forEach((k, v) -> {
-                String c = k.charAt(0) + "";
+                final String c = k.charAt(0) + "";
                 map.put(c, map.get(c) + v);
             });
 
