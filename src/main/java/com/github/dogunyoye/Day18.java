@@ -121,16 +121,11 @@ public class Day18 {
 
         while (!numbers.isEmpty()) {
             current = concatenateSnailfishNumber(current, numbers.poll());
-
             while (true) {
                 result = explode(current);
-                System.out.println("explode: " + result);
                 while (result != null) {
                     current = result;
                     result = explode(result);
-                    if (result != null) {
-                        System.out.println("explode: " + result);
-                    }
                 }
     
                 result = split(current);
@@ -145,9 +140,37 @@ public class Day18 {
 
         return current;
     }
+
+    private static int calculateMagnitude(String snailfishNumber) {
+        int leftPointer = 0;
+
+        String result = snailfishNumber;
+
+        while (result.contains("[") && result.contains("]")) {
+            final StringBuilder sb = new StringBuilder(result);
+            for (int i = 0; i < result.length(); i++) {
+                final char c = result.charAt(i);
+                if (c == '[') {
+                    leftPointer = i;
+                } else if (c == ']') {
+                    final String[] numbers = result.substring(leftPointer+1, i).split(",");
+                    final int value = (Integer.parseInt(numbers[0]) * 3) + (Integer.parseInt(numbers[1]) * 2);
+                    sb.replace(leftPointer, i+1, Integer.toString(value));
+                    result = sb.toString();
+                    break;
+                }
+            }
+        }
+
+        return Integer.parseInt(result);
+    }
+
+    public static int calculateMagnitude(List<String> data) {
+        return calculateMagnitude(calculateSnailfishNumber(data));
+    }
     
     public static void main( String[] args ) throws IOException {
         final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day18.txt"));
-        System.out.println(calculateSnailfishNumber(input));
+        System.out.println("Part 1: " + calculateMagnitude(input));
     }
 }
