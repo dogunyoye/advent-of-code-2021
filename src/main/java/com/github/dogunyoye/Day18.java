@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
@@ -168,9 +170,25 @@ public class Day18 {
     public static int calculateMagnitude(List<String> data) {
         return calculateMagnitude(calculateSnailfishNumber(data));
     }
+
+    public static int findHighestMagnitude(List<String> data) {
+        int highestMagnitude = Integer.MIN_VALUE;
+
+        for (int i = 0; i < data.size() - 1; i++) {
+            for (int j = i + 1; j < data.size(); j++) {
+                final List<String> snailfishNumbers = Arrays.asList(data.get(i), data.get(j));
+                highestMagnitude = Math.max(highestMagnitude, calculateMagnitude(calculateSnailfishNumber(snailfishNumbers)));
+                Collections.reverse(snailfishNumbers);
+                highestMagnitude = Math.max(highestMagnitude, calculateMagnitude(calculateSnailfishNumber(snailfishNumbers)));
+            }
+        }
+
+        return highestMagnitude;
+    }
     
     public static void main( String[] args ) throws IOException {
         final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day18.txt"));
         System.out.println("Part 1: " + calculateMagnitude(input));
+        System.out.println("Part 2: " + findHighestMagnitude(input));
     }
 }
