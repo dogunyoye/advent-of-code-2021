@@ -171,7 +171,7 @@ public class Day18 {
         return calculateMagnitude(calculateSnailfishNumber(data));
     }
 
-    public static int findHighestMagnitude(List<String> data) {
+    public static int findHighestMagnitudeOfTwoUniqueSnailfishNumbers(List<String> data) {
         int highestMagnitude = Integer.MIN_VALUE;
 
         for (int i = 0; i < data.size() - 1; i++) {
@@ -189,6 +189,6 @@ public class Day18 {
     public static void main( String[] args ) throws IOException {
         final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day18.txt"));
         System.out.println("Part 1: " + calculateMagnitude(input));
-        System.out.println("Part 2: " + findHighestMagnitude(input));
+        System.out.println("Part 2: " + findHighestMagnitudeOfTwoUniqueSnailfishNumbers(input));
     }
 }
