@@ -167,6 +167,7 @@ public class Day19 {
         return overlaps;
     }
 
+    // https://www.euclideanspace.com/maths/algebra/matrix/transforms/examples/index.htm
     private static List<Function<Position, Position>> rotationFunctions() {
         final List<Function<Position, Position>> functions = new ArrayList<>();
         functions.add((pos) -> new Position(pos.x, pos.y, pos.z));
