@@ -85,10 +85,10 @@ public class Day19 {
     private static class Scanner {
         private final int id;
         private Position scannerPosition;
-        private List<List<Position>> beacons;
+        private List<Position> beacons;
         private Map<Edge, Double> distancesMap;
 
-        private Scanner(int id, List<List<Position>> beacons, Map<Edge, Double> distancesMap) {
+        private Scanner(int id, List<Position> beacons, Map<Edge, Double> distancesMap) {
             this.id = id;
             this.beacons = beacons;
             this.distancesMap = distancesMap;
@@ -141,7 +141,7 @@ public class Day19 {
         return overlaps;
     }
 
-    private static List<Function<Position, Position>> orientationFunctions() {
+    private static List<Function<Position, Position>> rotationFunctions() {
         final List<Function<Position, Position>> functions = new ArrayList<>();
         functions.add((pos) -> new Position(pos.x, pos.y, pos.z));
         functions.add((pos) -> new Position(pos.y, pos.z, pos.x));
@@ -172,7 +172,7 @@ public class Day19 {
     }
 
     private static List<List<Position>> allBeaconOrientations(List<Position> beacons) {
-        return orientationFunctions()
+        return rotationFunctions()
                 .stream()
                 .map((f) -> {
                     return beacons.stream().map((pos) -> f.apply(pos)).toList();
@@ -199,7 +199,7 @@ public class Day19 {
                 beacons.add(new Position(x, y, z));
             }
 
-            final Scanner scanner = new Scanner(i, allBeaconOrientations(beacons), buildDistancesMap(beacons));
+            final Scanner scanner = new Scanner(i, beacons, buildDistancesMap(beacons));
             if (i == 0) {
                 // set the first scanner to position 0,0,0
                 // the remaining scanners will be positioned relative to this
@@ -212,9 +212,61 @@ public class Day19 {
         return scanners;
     }
 
+    private static Position findLocation(Position p0, Position p1, Position p2, Position p3) {
+        final Position candidate0 = new Position(p0.x - p2.x, p0.y - p2.y, p0.z - p2.z);
+        final Position candidate1 = new Position(p1.x - p3.x, p1.y - p3.y, p1.z - p3.z);
+
+        if (candidate0 == candidate1) {
+            return candidate0;
+        }
+
+        final Position candidate3 = new Position(p0.x - p3.x, p0.y - p3.y, p0.z - p3.z);
+        final Position candidate4 = new Position(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+
+        if (candidate3 == candidate4) {
+            return candidate3;
+        }
+
+        return null;
+    }
+
     public static int findNumberOfBeacons(List<String> data) {
         final List<Scanner> scanners = buildScanners(data);
         final Queue<Overlap> overlaps = findOverlappingBeacons(scanners);
+        final List<Function<Position, Position>> rotations = rotationFunctions();
+
+        while (!overlaps.isEmpty()) {
+            final Overlap overlap = overlaps.poll();
+            final Scanner s0 = overlap.s0;
+            final Scanner s1 = overlap.s1;
+
+            if (s0.scannerPosition == null) {
+                // we're "anchoring" off the first scanner
+                // if it doesn't have a position, we put it
+                // back in the queue and process the other
+                // overlaps until we have a position for this
+                overlaps.add(overlap);
+                continue;
+            }
+
+            final double distance = overlap.intersection.stream().toList().get(0);
+            final Edge e0 = findEdgeForDistance(s0.distancesMap, distance);
+            final Edge e1 = findEdgeForDistance(s1.distancesMap, distance);
+
+            for (final Function<Position, Position> rotation : rotations) {
+                final Position p2 = rotation.apply(e1.v0);
+                final Position p3 = rotation.apply(e1.v1);
+
+                final Position location = findLocation(e0.v0, e0.v1, p2, p3);
+                if (location != null) {
+                    s1.scannerPosition = location;
+                    for (Position beacon : s1.beacons) {
+                        beacon = rotation.apply(beacon);
+                    }
+                }
+            }
+
+        }
 
         return 0;
     }
