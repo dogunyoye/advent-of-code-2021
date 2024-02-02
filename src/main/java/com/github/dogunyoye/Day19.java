@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 public class Day19 {
 
     private static class Position {
-        private int x;
-        private int y;
-        private int z;
+        private final int x;
+        private final int y;
+        private final int z;
 
         private Position(int x, int y, int z) {
             this.x = x;
@@ -125,11 +125,6 @@ public class Day19 {
             this.beacons = beacons;
             this.distancesMap = distancesMap;
         }
-
-        @Override
-        public String toString() {
-            return "Scanner [distances=" + distancesMap + "]";
-        }
     }
 
     private static Map<Edge, Double> buildDistancesMap(List<Position> beacons) {
@@ -164,7 +159,6 @@ public class Day19 {
                 intersection.retainAll(s1.distancesMap.values());
 
                 if (intersection.size() >= expectedMatches) {
-                    System.out.println("scanner " + i + " has overlapping beacons with scanner " + j + " OVERLAPS: " + intersection.size());
                     overlaps.add(new Overlap(s0, s1, intersection));
                 }
             }
@@ -255,13 +249,9 @@ public class Day19 {
         return null;
     }
 
-    public static int findNumberOfBeacons(List<String> data) {
-        final List<Scanner> scanners = buildScanners(data);
+    private static void positionScanners(List<Scanner> scanners) {
         final Queue<Overlap> overlaps = findOverlappingBeacons(scanners);
         final List<Function<Position, Position>> rotations = rotationFunctions();
-
-        final Set<Position> beacons = new HashSet<>();
-        beacons.addAll(scanners.get(0).beacons);
 
         while (!overlaps.isEmpty()) {
             final Overlap overlap = overlaps.poll();
@@ -269,10 +259,10 @@ public class Day19 {
             Scanner s1 = overlap.s1;
 
             if (s0.scannerPosition == null) {
-                // we're "anchoring" off the first scanner
-                // if it doesn't have a position, we put it
-                // back in the queue and process the other
-                // overlaps until we have a position for this
+                // we're "anchoring" off the scanner with a position.
+                // If neither scanner has a position, we put the overlap
+                // back in the queue and process the other pverlaps until
+                // until we have a position at least one of these scanners.
                 if (s1.scannerPosition == null) {
                     overlaps.add(overlap);
                     continue;
@@ -298,24 +288,52 @@ public class Day19 {
                     final Position s0Pos = s0.scannerPosition;
                     s1.scannerPosition = new Position(location.x + s0Pos.x, location.y + s0Pos.y, location.z + s0Pos.z);
                     s1.rotation = rotation;
-                    for (Position beacon : s1.beacons) {
-                        beacon = rotation.apply(beacon);
-                        beacons.add(new Position(s1.scannerPosition.x + beacon.x, s1.scannerPosition.y + beacon.y, s1.scannerPosition.z + beacon.z));
-                    }
                 }
             }
 
             if (s1.scannerPosition == null) {
                 throw new RuntimeException("No rotation found");
             }
+        }
+    }
 
+    public static int findNumberOfBeacons(List<String> data) {
+        final List<Scanner> scanners = buildScanners(data);
+        positionScanners(scanners);
+
+        final Set<Position> beacons = new HashSet<>();
+        beacons.addAll(scanners.get(0).beacons);
+
+        for (int i = 1; i < scanners.size(); i++) {
+            final Scanner s = scanners.get(i);
+            for (final Position beacon : s.beacons) {
+                final Position rotated = s.rotation.apply(beacon);
+                beacons.add(new Position(s.scannerPosition.x + rotated.x, s.scannerPosition.y + rotated.y, s.scannerPosition.z + rotated.z));
+            }
         }
 
         return beacons.size();
     }
 
+    private static int manhattanDistance(Scanner s0, Scanner s1) {
+        final Position s0Pos = s0.scannerPosition;
+        final Position s1Pos = s1.scannerPosition;
+        return Math.abs(s0Pos.x - s1Pos.x) + Math.abs(s0Pos.y - s1Pos.y) + Math.abs(s0Pos.z - s1Pos.z);
+    }
+
     public static int largestManhattanDistanceBetweenScanners(List<String> data) {
-        return 0;
+        final List<Scanner> scanners = buildScanners(data);
+        positionScanners(scanners);
+
+        int largestManhattanDistance = Integer.MIN_VALUE;
+        for (int i = 0; i < scanners.size() - 1; i++) {
+            final Scanner s0 = scanners.get(i);
+            for (int j = i + 1; j < scanners.size(); j++) {
+                final Scanner s1 = scanners.get(j);
+                largestManhattanDistance = Math.max(largestManhattanDistance, manhattanDistance(s0, s1));
+            }
+        }
+        return largestManhattanDistance;
     }
     
     public static void main( String[] args ) throws IOException {
