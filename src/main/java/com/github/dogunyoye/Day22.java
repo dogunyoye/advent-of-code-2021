@@ -111,12 +111,8 @@ public class Day22 {
         }
     }
 
-    private static boolean checkBounds(int lower, int upper) {
-        if (lower >= -50 && upper <= 50) {
-            return true;
-        }
-
-        return false;
+    private static boolean withinBounds(int lower, int upper) {
+        return lower >= -50 && upper <= 50;
     }
 
     private static Pair<String, Set<Cube>> parse(String line) {
@@ -129,7 +125,7 @@ public class Day22 {
         final int xLower = Integer.parseInt(xSplit[0]);
         final int xUpper = Integer.parseInt(xSplit[1]);
 
-        if (!checkBounds(xLower, xUpper)) {
+        if (!withinBounds(xLower, xUpper)) {
             return null;
         }
 
@@ -137,7 +133,7 @@ public class Day22 {
         final int yLower = Integer.parseInt(ySplit[0]);
         final int yUpper = Integer.parseInt(ySplit[1]);
 
-        if (!checkBounds(yLower, yUpper)) {
+        if (!withinBounds(yLower, yUpper)) {
             return null;
         }
 
@@ -145,7 +141,7 @@ public class Day22 {
         final int zLower = Integer.parseInt(zSplit[0]);
         final int zUpper = Integer.parseInt(zSplit[1]);
 
-        if (!checkBounds(zLower, zUpper)) {
+        if (!withinBounds(zLower, zUpper)) {
             return null;
         }
 
@@ -183,46 +179,40 @@ public class Day22 {
         return new Cuboid(xLower, xUpper, yLower, yUpper, zLower, zUpper, state);
     }
 
-    private static Set<Cube> parseCuboids(List<String> input) {
+    private static Set<Cube> parseCuboidsConstrained(List<String> input) {
         final Set<Cube> cubes = new HashSet<>();
 
-        for (String line : input) {
+        for (final String line : input) {
             final Pair<String, Set<Cube>> c = parse(line);
-            if (c == null) {
-                continue;
-            }
-
-            if (c.getValue0().equals("on")) {
-                cubes.addAll(c.getValue1());
-            } else {
-                cubes.removeAll(c.getValue1());
+            if (c != null) {
+                if ("on".equals(c.getValue0())) {
+                    cubes.addAll(c.getValue1());
+                } else {
+                    cubes.removeAll(c.getValue1());
+                }
             }
         }
 
         return cubes;
     }
 
-    private static long parseCuboidsPart2(List<String> input) {
+    private static long parseCuboidsUnconstrained(List<String> input) {
         final Map<Cuboid, Integer> count = new HashMap<>();
-        final List<Cuboid> cuboids =
-            input.stream().map(Day22::createCuboid).toList();
+        final List<Cuboid> cuboids = input.stream().map(Day22::createCuboid).toList();
 
-        for (int i = 0; i < cuboids.size(); i++) {
-            final Cuboid c0 = cuboids.get(i);
+        for (final Cuboid c0 : cuboids) {
             final int sign = "on".equals(c0.state) ? 1 : -1;
             final Map<Cuboid, Integer> temp = new HashMap<>();
 
             for (final Entry<Cuboid, Integer> e : count.entrySet()) {
                 final Cuboid c1 = e.getKey();
-
                 final int xMin = Math.max(c0.xMin, c1.xMin);
                 final int xMax = Math.min(c0.xMax, c1.xMax);
                 final int yMin = Math.max(c0.yMin, c1.yMin);
                 final int yMax = Math.min(c0.yMax, c1.yMax);
                 final int zMin = Math.max(c0.zMin, c1.zMin);
                 final int zMax = Math.min(c0.zMax, c1.zMax);
-                final Cuboid intersection =
-                    new Cuboid(xMin, xMax, yMin, yMax, zMin, zMax, null);
+                final Cuboid intersection = new Cuboid(xMin, xMax, yMin, yMax, zMin, zMax, null);
 
                 if ((xMin <= xMax) && (yMin <= yMax) && (zMin <= zMax)) {
                     if (!temp.containsKey(intersection)) {
@@ -257,11 +247,11 @@ public class Day22 {
     }
 
     public static long findOnCubesConstrained(List<String> input) {
-        return parseCuboids(input).size();
+        return parseCuboidsConstrained(input).size();
     }
 
     public static long findOnCubesUnconstrained(List<String> input) {
-        return parseCuboidsPart2(input);
+        return parseCuboidsUnconstrained(input);
     }
     
     public static void main( String[] args ) throws IOException {
