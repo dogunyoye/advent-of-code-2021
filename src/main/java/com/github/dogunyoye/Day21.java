@@ -94,10 +94,7 @@ public class Day21 {
     }
 
     public static int playDiracDice(Player[] players) {
-
         int die = 0;
-
-        boolean terminate = false;
         final int[] positions = new int[]{10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         while(true) {
@@ -109,17 +106,10 @@ public class Day21 {
                 die += 3;
 
                 if (p.score >= 1000) {
-                    terminate = true;
-                    break;
+                    return die * Math.min(players[0].score, players[1].score);
                 }
             }
-
-            if (terminate) {
-                break;
-            }
         }
-
-        return die * Math.min(players[0].score, players[1].score);
     }
 
     private static long[] playQuantumDiracDice(

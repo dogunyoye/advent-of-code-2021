@@ -45,7 +45,6 @@ public class Day03 {
     private static int findRating(List<String> report, ReportFilter<Integer, Integer, Integer, List<String>> filter) {
 
         final int length = report.get(0).length();
-        boolean terminate = false;
 
         while (true) {
             for (int i = 0; i < length; i++) {
@@ -63,17 +62,10 @@ public class Day03 {
                 report = filter.apply(countZeros, countOnes, i, report);
 
                 if (report.size() == 1) {
-                    terminate = true;
-                    break;
+                    return Integer.parseInt(report.get(0), 2);
                 }
             }
-
-            if (terminate) {
-                break;
-            }
         }
-
-        return Integer.parseInt(report.get(0), 2);
     }
 
     public static int findLifeSupportRating(List<String> report1, List<String> report2) {
