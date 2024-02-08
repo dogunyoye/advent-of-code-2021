@@ -20,6 +20,20 @@ public class Day24 {
             this.z = z;
         }
 
+        private int getValue(String variable) {
+            if (variable.matches("[wxyz]")) {
+                return switch(variable) {
+                    case "w" -> w;
+                    case "x" -> x;
+                    case "y" -> y;
+                    case "z" -> z;
+                    default -> throw new RuntimeException("Unknown reg: " + variable);
+                };
+            }
+            
+            return Integer.parseInt(variable);
+        }
+
         private void inp(char reg, int inp) {
             switch(reg) {
                 case 'w' -> w = inp;
@@ -30,7 +44,8 @@ public class Day24 {
             }
         }
 
-        private void add(char reg, int inp) {
+        private void add(char reg, String variable) {
+            final int inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w += inp;
                 case 'x' -> x += inp;
@@ -40,7 +55,8 @@ public class Day24 {
             }
         }
 
-        private void mul(char reg, int inp) {
+        private void mul(char reg, String variable) {
+            final int inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w *= inp;
                 case 'x' -> x *= inp;
@@ -50,7 +66,8 @@ public class Day24 {
             }
         }
 
-        private void div(char reg, int inp) {
+        private void div(char reg, String variable) {
+            final int inp = getValue(variable);
             if (inp == 0) {
                 throw new ArithmeticException("Cannot divide by 0");
             }
@@ -64,7 +81,8 @@ public class Day24 {
             }
         }
 
-        private void mod(char reg, int inp) {
+        private void mod(char reg, String variable) {
+            final int inp = getValue(variable);
             if (inp <= 0) {
                 throw new ArithmeticException("Cannot mod by value: " + inp);
             }
@@ -103,19 +121,7 @@ public class Day24 {
         }
 
         private void eql(char reg, String variable) {
-            int inp;
-            if (variable.matches("[wxyz]")) {
-                switch(variable) {
-                    case "w" -> inp = w;
-                    case "x" -> inp = x;
-                    case "y" -> inp = y;
-                    case "z" -> inp = z;
-                    default -> throw new RuntimeException("Unknown reg: " + variable);
-                }
-            } else {
-                inp = Integer.parseInt(variable);
-            }
-
+            final int inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w = w == inp ? 1 : 0;
                 case 'x' -> x = x == inp ? 1 : 0;
@@ -144,18 +150,25 @@ public class Day24 {
             final String[] parts = instruction.split(" ");
             final char reg = parts[1].charAt(0);
 
+            final String variable;
+            if (parts.length == 2) {
+                variable = Character.toString(modelNumberString.charAt(idx++));
+            } else {
+                variable = parts[2];
+            }
+
             switch(parts[0]) {
-                case "inp" -> alu.inp(reg, Integer.parseInt("" + modelNumberString.charAt(idx++)));
-                case "add" -> alu.add(reg, Integer.parseInt(parts[2]));
-                case "mul" -> alu.mul(reg, Integer.parseInt(parts[2]));
-                case "div" -> alu.div(reg, Integer.parseInt(parts[2]));
-                case "mod" -> alu.mod(reg, Integer.parseInt(parts[2]));
-                case "eql" -> alu.eql(reg, parts[2]);
+                case "inp" -> alu.inp(reg, Integer.parseInt(variable));
+                case "add" -> alu.add(reg, variable);
+                case "mul" -> alu.mul(reg, variable);
+                case "div" -> alu.div(reg, variable);
+                case "mod" -> alu.mod(reg, variable);
+                case "eql" -> alu.eql(reg, variable);
                 default -> throw new RuntimeException("Unknown instruction: " + instruction);
             }
         }
 
-        //System.out.println(alu);
+        System.out.println(alu + " " + modelNumber);
         return alu.z == 0;
     }
 
