@@ -3,6 +3,7 @@ package com.github.dogunyoye;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Day24 {
@@ -137,6 +138,14 @@ public class Day24 {
         }
     }
 
+    private static List<List<String>> createSubprograms(List<String> input) {
+        final List<List<String>> subPrograms = new ArrayList<>();
+        for (int i = 0; i < input.size(); i+=18) {
+            subPrograms.add(input.subList(i, i+18));
+        }
+        return subPrograms;
+    }
+
     private static boolean runALUProgram(List<String> input, long modelNumber) {
         final String modelNumberString = Long.toString(modelNumber);
         if (modelNumberString.contains("0")) {
@@ -174,11 +183,13 @@ public class Day24 {
 
     public static long findLargestModelNumberAcceptedByMONAD(List<String> input) {
 
-        for (long i = 99999999999999L; i >= 11111111111111L; i--) {
-            if (runALUProgram(input, i)) {
-                return i;
-            }
-        }
+        final List<List<String>> subprograms = createSubprograms(input);
+
+        // for (long i = 99999999999999L; i >= 11111111111111L; i--) {
+        //     if (runALUProgram(input, i)) {
+        //         return i;
+        //     }
+        // }
 
         return -1;
     }
