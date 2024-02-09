@@ -147,7 +147,7 @@ public class Day24 {
         return subPrograms;
     }
 
-    // For debugging and to test candidate numbers
+    // For debugging and testing candidate model numbers
     @SuppressWarnings("unused")
     private static boolean runALUProgram(List<String> input, long modelNumber) {
         final String modelNumberString = Long.toString(modelNumber);
