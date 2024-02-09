@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Day24 {
@@ -146,6 +147,8 @@ public class Day24 {
         return subPrograms;
     }
 
+    // For debugging and to test candidate numbers
+    @SuppressWarnings("unused")
     private static boolean runALUProgram(List<String> input, long modelNumber) {
         final String modelNumberString = Long.toString(modelNumber);
         if (modelNumberString.contains("0")) {
@@ -181,21 +184,69 @@ public class Day24 {
         return alu.z == 0;
     }
 
-    public static long findLargestModelNumberAcceptedByMONAD(List<String> input) {
+    private static int[] divAndIncrement(List<String> subprogram) {
+        final int div = Integer.parseInt(subprogram.get(4).split(" ")[2]); // 1 or 26
+        final int increment0 = Integer.parseInt(subprogram.get(5).split(" ")[2]);
+        final int increment1 = Integer.parseInt(subprogram.get(15).split(" ")[2]);
+        return new int[]{div, increment0, increment1};
+    }
 
+    // mostly inspired from: https://www.youtube.com/watch?v=Eswmo7Y7C4U
+    public static List<Long> findModelNumbersAcceptedByMONAD(List<String> input) {
         final List<List<String>> subprograms = createSubprograms(input);
+        final List<int[]> divAndIncrements = subprograms.stream().map(Day24::divAndIncrement).toList();
+        final List<Long> accepted = new ArrayList<>();
 
-        // for (long i = 99999999999999L; i >= 11111111111111L; i--) {
-        //     if (runALUProgram(input, i)) {
-        //         return i;
-        //     }
-        // }
+        for (int i = 9999999; i >= 1111111; i--) {
+            final int[] result = new int[14];
+            final String modelNumberString = Integer.toString(i);
+            if (modelNumberString.contains("0")) {
+                continue;
+            }
 
-        return -1;
+            boolean stopProcessing = false;
+            int z = 0;
+            int idx = 0;
+
+            for (int j = 0; j < divAndIncrements.size(); j++) {
+                final int[] divAndIncrement = divAndIncrements.get(j);
+
+                switch(divAndIncrement[0]) {
+                    case 1:
+                        final int digit = Integer.parseInt(Character.toString(modelNumberString.charAt(idx++)));
+                        z = z * 26 + digit + divAndIncrement[2];
+                        result[j] = digit;
+                        break;
+                    
+                    case 26:
+                        result[j] = (z % 26) + divAndIncrement[1];
+                        z /= 26;
+                        if (result[j] < 1 || result[j] > 9) {
+                            stopProcessing = true;
+                        }
+                        break;
+                    
+                    default:
+                        throw new RuntimeException("Unexpected div number: " + divAndIncrement[0]);
+                }
+
+                if (stopProcessing) {
+                    break;
+                }
+            }
+
+            if (!stopProcessing) {
+                accepted.add(Long.parseLong(Arrays.stream(result).boxed().map((r) -> Integer.toString(r)).reduce("", String::concat)));
+            }
+        }
+
+        return accepted;
     }
     
     public static void main(String[] args) throws IOException {
         final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day24.txt"));
-        System.out.println("Part 1: " + findLargestModelNumberAcceptedByMONAD(input));
+        final List<Long> acceptedNumbers = findModelNumbersAcceptedByMONAD(input);
+        System.out.println("Part 1: " + acceptedNumbers.get(0));
+        System.out.println("Part 2: " + acceptedNumbers.get(acceptedNumbers.size() - 1));
     }
 }
