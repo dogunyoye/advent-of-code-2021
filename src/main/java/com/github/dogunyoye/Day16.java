@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Day16 {
 
-    private static final Map<String, String> hexTable;
+    private static final Map<String, String> HEX_TABLE;
     static {
         Map<String, String> map = new HashMap<>();
         map.put("0", "0000");
@@ -36,7 +36,7 @@ public class Day16 {
         map.put("D", "1101");
         map.put("E", "1110");
         map.put("F", "1111");
-        hexTable = Collections.unmodifiableMap(map);
+        HEX_TABLE = Collections.unmodifiableMap(map);
     }
 
     static class Packet {
@@ -183,7 +183,7 @@ public class Day16 {
     private static String hexToBinary(String hexString) {
         String result = "";
         for (Character c : hexString.toCharArray()) {
-            result += hexTable.get(c.toString());
+            result += HEX_TABLE.get(c.toString());
         }
 
         return result;
