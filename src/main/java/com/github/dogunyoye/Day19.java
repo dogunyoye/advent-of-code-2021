@@ -143,7 +143,11 @@ public class Day19 {
     }
 
     private static Edge findEdgeForDistance(Map<Edge, Long> distancesMap, long distance) {
-        return distancesMap.entrySet().stream().filter((e) -> e.getValue() == distance).findFirst().get().getKey();
+        return distancesMap.entrySet().stream()
+            .filter((e) -> e.getValue() != null && e.getValue().longValue() == distance)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No edge found for distance: " + distance))
+            .getKey();
     }
 
     private static Queue<Overlap> findOverlappingBeacons(List<Scanner> scanners) {
@@ -256,7 +260,6 @@ public class Day19 {
         final Queue<Overlap> overlaps = findOverlappingBeacons(scanners);
         final List<Function<Position, Position>> rotations = rotationFunctions();
 
-        int pollsSinceProgress = 0;
         while (!overlaps.isEmpty()) {
             final int passSize = overlaps.size();
             boolean progressedInPass = false;
@@ -283,7 +286,6 @@ public class Day19 {
                 if (s1.scannerPosition != null) {
                     // already positioned, nothing to do
                     progressedInPass = true;
-                    pollsSinceProgress = 0;
                     continue;
                 }
 
@@ -334,12 +336,10 @@ public class Day19 {
 
                 if (positioned) {
                     progressedInPass = true;
-                    pollsSinceProgress = 0;
                 }
             }
 
             if (!progressedInPass) {
-                pollsSinceProgress += passSize;
                 throw new IllegalStateException("No progress positioning scanners in a full pass, stuck with "
                     + overlaps.size() + " overlaps remaining");
             }
