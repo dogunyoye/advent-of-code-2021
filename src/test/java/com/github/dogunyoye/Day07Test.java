@@ -28,6 +28,6 @@ public class Day07Test {
 
     @Test
     public void testPartTwo() {
-        assertEquals(168, Day07.calculateEnchancedFuelCost(positions));
+        assertEquals(168, Day07.calculateEnhancedFuelCost(positions));
     }
 }

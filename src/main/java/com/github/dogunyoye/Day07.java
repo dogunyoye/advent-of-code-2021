@@ -43,14 +43,6 @@ public class Day07 {
             });
     }
 
-    /**
-     * @deprecated Use {@link #calculateEnhancedFuelCost(int[])} instead (fixed spelling).
-     */
-    @Deprecated
-    public static int calculateEnchancedFuelCost(int[] positions) {
-        return calculateEnhancedFuelCost(positions);
-    }
-
     public static int calculateEnhancedFuelCost(int[] positions) {
         return calculate(positions,
             (crabPos, otherCrabPos) -> {
@@ -64,6 +56,6 @@ public class Day07 {
         final int[] positions = Stream.of(input.get(0).split(",")).mapToInt(Integer::parseInt).toArray();
 
         System.out.println("Part 1: " + calculateFuelCost(positions));
-        System.out.println("Part 2: " + calculateEnchancedFuelCost(positions));
+        System.out.println("Part 2: " + calculateEnhancedFuelCost(positions));
     }
 }
