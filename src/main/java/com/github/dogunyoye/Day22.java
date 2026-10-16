@@ -115,10 +115,6 @@ public class Day22 {
         }
     }
 
-    private static boolean withinBounds(int lower, int upper) {
-        return lower >= -50 && upper <= 50;
-    }
-
     private static Pair<String, Set<Cube>> parse(String line) {
         if (line == null || line.isBlank()) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
@@ -134,21 +130,21 @@ public class Day22 {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
 
-        final String[] xSplit = coordsSplit[0].replaceAll("x=", "").split("\\.\\.");
+        final String[] xSplit = coordsSplit[0].replace("x=", "").split("\\.\\.");
         if (xSplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
         final int xLower = Math.max(Integer.parseInt(xSplit[0]), -50);
         final int xUpper = Math.min(Integer.parseInt(xSplit[1]), 50);
 
-        final String[] ySplit = coordsSplit[1].replaceAll("y=", "").split("\\.\\.");
+        final String[] ySplit = coordsSplit[1].replace("y=", "").split("\\.\\.");
         if (ySplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
         final int yLower = Math.max(Integer.parseInt(ySplit[0]), -50);
         final int yUpper = Math.min(Integer.parseInt(ySplit[1]), 50);
 
-        final String[] zSplit = coordsSplit[2].replaceAll("z=", "").split("\\.\\.");
+        final String[] zSplit = coordsSplit[2].replace("z=", "").split("\\.\\.");
         if (zSplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
@@ -187,21 +183,21 @@ public class Day22 {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
 
-        final String[] xSplit = coordsSplit[0].replaceAll("x=", "").split("\\.\\.");
+        final String[] xSplit = coordsSplit[0].replace("x=", "").split("\\.\\.");
         if (xSplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
         final int xLower = Integer.parseInt(xSplit[0]);
         final int xUpper = Integer.parseInt(xSplit[1]);
 
-        final String[] ySplit = coordsSplit[1].replaceAll("y=", "").split("\\.\\.");
+        final String[] ySplit = coordsSplit[1].replace("y=", "").split("\\.\\.");
         if (ySplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
         final int yLower = Integer.parseInt(ySplit[0]);
         final int yUpper = Integer.parseInt(ySplit[1]);
 
-        final String[] zSplit = coordsSplit[2].replaceAll("z=", "").split("\\.\\.");
+        final String[] zSplit = coordsSplit[2].replace("z=", "").split("\\.\\.");
         if (zSplit.length != 2) {
             throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
