@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -148,6 +146,9 @@ public class Day16 {
 
             default -> {
                 final String lengthTypeId = queue.poll();
+                if (lengthTypeId == null) {
+                    throw new IllegalArgumentException("Missing length type ID: truncated packet");
+                }
                 consumed++;
 
                 final Packet p = new Packet(version, typeId);
@@ -181,9 +182,17 @@ public class Day16 {
     }
 
     private static String hexToBinary(String hexString) {
+        if (hexString == null || hexString.isEmpty()) {
+            throw new IllegalArgumentException("Hex string must not be null or empty");
+        }
         String result = "";
         for (Character c : hexString.toCharArray()) {
-            result += HEX_TABLE.get(c.toString());
+            final String key = String.valueOf(Character.toUpperCase(c));
+            final String bits = HEX_TABLE.get(key);
+            if (bits == null) {
+                throw new IllegalArgumentException("Invalid hex character: " + c);
+            }
+            result += bits;
         }
 
         return result;
@@ -208,7 +217,7 @@ public class Day16 {
             return packets;
         }
 
-        throw new RuntimeException("Error with parsing");
+        throw new IllegalArgumentException("Error with parsing");
     }
 
     private static long parsePacketResult(Set<Packet> evaluated, Packet p) {
@@ -265,6 +274,9 @@ public class Day16 {
 
             // greater than
             case 5 -> {
+                if (p.getSubPackets().size() != 2) {
+                    throw new IllegalArgumentException("Comparison operator (greater than) requires exactly 2 sub-packets");
+                }
                 final Packet p1 = p.getSubPackets().get(0);
                 final Packet p2 = p.getSubPackets().get(1);
 
@@ -279,6 +291,9 @@ public class Day16 {
 
             // less than
             case 6 -> {
+                if (p.getSubPackets().size() != 2) {
+                    throw new IllegalArgumentException("Comparison operator (less than) requires exactly 2 sub-packets");
+                }
                 final Packet p1 = p.getSubPackets().get(0);
                 final Packet p2 = p.getSubPackets().get(1);
 
@@ -293,6 +308,9 @@ public class Day16 {
 
             // equal to
             case 7 -> {
+                if (p.getSubPackets().size() != 2) {
+                    throw new IllegalArgumentException("Comparison operator (equal to) requires exactly 2 sub-packets");
+                }
                 final Packet p1 = p.getSubPackets().get(0);
                 final Packet p2 = p.getSubPackets().get(1);
 
@@ -306,7 +324,7 @@ public class Day16 {
             }
 
             default -> {
-                throw new RuntimeException("Error! Unknown type id: " + typeId);
+                throw new IllegalArgumentException("Error! Unknown type id: " + typeId);
             }
         }
     }
@@ -338,7 +356,7 @@ public class Day16 {
     }   
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day16.txt"));
+        final List<String> input = InputReader.readLines("Day16.txt");
         final String hexString = input.get(0);
         final List<Packet> packets = parsePackets(hexString);
 

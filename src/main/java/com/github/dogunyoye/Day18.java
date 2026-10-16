@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,8 +24,8 @@ public class Day18 {
             if (Character.isDigit(snailFish.charAt(i))) {
                 nearestLeftNumberStartIdx = i;
                 nearestLeftNumberEndIdx = i+1;
-                while (i >= 0 && Character.isDigit(snailFish.charAt(--i))) {
-                    nearestLeftNumberStartIdx = i;
+                while (nearestLeftNumberStartIdx > 0 && Character.isDigit(snailFish.charAt(nearestLeftNumberStartIdx - 1))) {
+                    nearestLeftNumberStartIdx--;
                 }
                 break;
             }
@@ -37,8 +35,8 @@ public class Day18 {
             if (Character.isDigit(snailFish.charAt(i))) {
                 nearestRightNumberStartIdx = i;
                 nearestRightNumberEndIdx = i+1;
-                while (i < snailFish.length() && Character.isDigit(snailFish.charAt(++i))) {
-                    nearestRightNumberEndIdx = i+1;
+                while (nearestRightNumberEndIdx < snailFish.length() && Character.isDigit(snailFish.charAt(nearestRightNumberEndIdx))) {
+                    nearestRightNumberEndIdx++;
                 }
                 break;
             }
@@ -50,7 +48,10 @@ public class Day18 {
     }
 
     private static String explode(String snailfishNumber) {
-        int leftBracketCount = 0;
+        if (snailfishNumber == null || snailfishNumber.isEmpty()) {
+            throw new IllegalArgumentException("Snailfish number must not be empty");
+        }
+        int depth = 0;
         int leftPointer = 0;
         int rightPointer = 0;
 
@@ -59,18 +60,26 @@ public class Day18 {
         for (int i = 0; i < snailfishNumber.length(); i++) {
             final char c = snailfishNumber.charAt(i);
             if (c == '[') {
-                ++leftBracketCount;
+                ++depth;
                 leftPointer = i;
             } else if (c == ']') {
-                --leftBracketCount;
                 rightPointer = i;
 
-                if (leftBracketCount > 0 && leftBracketCount % 4 == 0) {
-                    final int[][] indices = findNearestNumbers(leftPointer, rightPointer, snailfishNumber);
-                    final String[] pairValues = snailfishNumber.substring(leftPointer+1, rightPointer).split(",");
+                if (depth >= 5) {
+                    final String inner = snailfishNumber.substring(leftPointer+1, rightPointer);
+                    if (inner.contains("[") || inner.contains("]")) {
+                        // not a regular pair, skip exploding this bracket
+                        --depth;
+                        continue;
+                    }
+                    final String[] pairValues = inner.split(",");
+                    if (pairValues.length != 2) {
+                        throw new IllegalStateException("No number found for explode at index " + leftPointer);
+                    }
                     final int pairLeftValue = Integer.parseInt(pairValues[0]);
                     final int pairRightValue = Integer.parseInt(pairValues[1]);
 
+                    final int[][] indices = findNearestNumbers(leftPointer, rightPointer, snailfishNumber);
                     final int leftIdx = indices[0][0];
                     final int rightIdx = indices[1][0];
 
@@ -92,6 +101,7 @@ public class Day18 {
                     sb.replace(leftPointer, rightPointer+1, "0");
                     return sb.toString();
                 }
+                --depth;
             }
         }
 
@@ -99,24 +109,35 @@ public class Day18 {
     }
 
     private static String split(String snailfishNumber) {
+        if (snailfishNumber == null || snailfishNumber.isEmpty()) {
+            throw new IllegalArgumentException("Snailfish number must not be empty");
+        }
         final StringBuilder sb = new StringBuilder(snailfishNumber);
 
-        for (int i = 0; i < snailfishNumber.length()-1; i++) {
-            final char c0 = snailfishNumber.charAt(i);
-            final char c1 = snailfishNumber.charAt(i+1);
-
-            if (Character.isDigit(c0) && Character.isDigit(c1)) {
-                final int pairValue = Integer.parseInt("" + c0 + c1);
-                final String newValue = "[" + Math.floorDiv(pairValue, 2) + "," + (int)Math.ceil((double)pairValue/2) + "]";
-                sb.replace(i, i+2, newValue);
+        for (int i = 0; i < snailfishNumber.length(); i++) {
+            if (!Character.isDigit(snailfishNumber.charAt(i))) {
+                continue;
+            }
+            int j = i;
+            while (j < snailfishNumber.length() && Character.isDigit(snailfishNumber.charAt(j))) {
+                j++;
+            }
+            final int pairValue = Integer.parseInt(snailfishNumber.substring(i, j));
+            if (pairValue >= 10) {
+                final String newValue = "[" + Math.floorDiv(pairValue, 2) + "," + ((pairValue + 1) / 2) + "]";
+                sb.replace(i, j, newValue);
                 return sb.toString();
             }
+            i = j - 1;
         }
 
         return null;
     }
 
     private static String calculateSnailfishNumber(List<String> data) {
+        if (data == null || data.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be empty");
+        }
         final Queue<String> numbers = new ArrayDeque<>(data.subList(1, data.size()));
         String current = data.get(0);
         String result = "";
@@ -187,7 +208,7 @@ public class Day18 {
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day18.txt"));
+        final List<String> input = InputReader.readLines("Day18.txt");
         System.out.println("Part 1: " + calculateMagnitude(input));
         System.out.println("Part 2: " + findHighestMagnitudeOfTwoUniqueSnailfishNumbers(input));
     }

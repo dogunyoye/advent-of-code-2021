@@ -1,6 +1,7 @@
 package com.github.dogunyoye;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
@@ -16,12 +17,19 @@ public class Day23Test {
     }
 
     @Test
-    public void testPartOne() {
-        assertEquals(12521, 12521);
+    public void testMainDoesNotThrow() {
+        // Day23 was solved with an external tool; main is a no-op kept for compat
+        Day23.main(new String[0]);
     }
 
     @Test
-    public void testPartTwo() {
-        assertEquals(44169, 44169);
+    public void testSolveIsExplicitStub() {
+        assertNotNull(Day23.class);
+        try {
+            Day23.solve();
+            fail("Expected UnsupportedOperationException from explicit Day23 stub");
+        } catch (UnsupportedOperationException expected) {
+            // documents that Day23 has no in-repo solver (external solver used)
+        }
     }
 }

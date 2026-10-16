@@ -1,3 +1,13 @@
 target/
 .vscode/
-src/main/resources
+.idea/
+*.iml
+*.class
+*.log
+.DS_Store
+.classpath
+.project
+.settings/
+# Puzzle inputs are personal to each AoC user and distributable only with care.
+# Real inputs stay out of git; provide samples under src/main/resources/ if needed.
+src/main/resources/Day*.txt

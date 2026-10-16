@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +19,15 @@ public class Day04 {
         }
 
         public void fill(int rowIndex, int[] numbers) {
+            if (numbers == null) {
+                throw new IllegalArgumentException("Row numbers must not be null");
+            }
+            if (numbers.length != 5) {
+                throw new IllegalArgumentException("Row must contain exactly 5 numbers, got " + numbers.length);
+            }
+            if (rowIndex < 0 || rowIndex >= 5) {
+                throw new IllegalArgumentException("Row index out of bounds: " + rowIndex);
+            }
             for (int i = 0; i < 5; i++) {
                 this.grid[rowIndex][i] = numbers[i];
             }
@@ -124,6 +131,9 @@ public class Day04 {
             }
         }
 
+        if (lastWinner == null) {
+            throw new IllegalStateException("No winning bingo card found");
+        }
         return lastWinningNum * lastWinner.calculateWin();
     }
 
@@ -140,29 +150,50 @@ public class Day04 {
             final String line = iter.next();
 
             if (!line.isEmpty()) {
-                final int[] lineNumbers = Stream.of(line.split(" "))
+                final int[] lineNumbers = Stream.of(line.trim().split("\\s+"))
                     .filter(str -> !str.isEmpty())
                     .mapToInt(Integer::parseInt)
                     .toArray();
 
+                if (lineNumbers.length != 5) {
+                    throw new IllegalArgumentException("Malformed bingo row, expected 5 numbers: " + line);
+                }
+                if (rowIndex >= 5) {
+                    throw new IllegalArgumentException("Malformed bingo card, too many rows");
+                }
                 card.fill(rowIndex, lineNumbers);
                 rowIndex++;
                 continue;
             }
 
+            // blank separator: only close a card if one is in progress
+            if (rowIndex == 0) {
+                continue;
+            }
+            if (rowIndex != 5) {
+                throw new IllegalArgumentException("Incomplete bingo card, expected 5 rows but got " + rowIndex);
+            }
             bingoCards.add(card);
             // reset for new card
             card = new BingoCard();
             rowIndex = 0;
         }
 
-        // add last card
-        bingoCards.add(card);
+        // add last card only if one is in progress
+        if (rowIndex > 0) {
+            if (rowIndex != 5) {
+                throw new IllegalArgumentException("Incomplete bingo card, expected 5 rows but got " + rowIndex);
+            }
+            bingoCards.add(card);
+        }
+        if (bingoCards.isEmpty()) {
+            throw new IllegalArgumentException("No bingo cards found");
+        }
         return bingoCards;
     }
 
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day04.txt"));
+        final List<String> input = InputReader.readLines("Day04.txt");
         final Supplier<Stream<String>> streamSupplier = () -> input.stream();
 
         final Iterator<String> iter = streamSupplier.get().iterator();

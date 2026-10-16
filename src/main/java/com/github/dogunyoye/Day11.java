@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -118,6 +116,7 @@ public class Day11 {
         final List<Coordinate> neighbours = getNeighbours(map, length, depth, c.x, c.y);
         neighbours.forEach((n) -> {
             map[n.x][n.y]++;
+            // Trigger only on the transition to 10 so each octopus flashes at most once per step
             if (map[n.x][n.y] == 10) {
                 octopusFlash(map, flashed, length, depth, n);
             }
@@ -125,10 +124,13 @@ public class Day11 {
     }
 
     public static int simulateDumboOctopusFlashes(int[][] map, int steps, int length, int depth) {
+        if (steps < 0) {
+            throw new IllegalArgumentException("Steps must not be negative: " + steps);
+        }
         int sum = 0;
         final Set<Coordinate> flashed = new HashSet<>();
 
-        while(steps != 0) {
+        while(steps > 0) {
             flashed.clear();
 
             for (int i = 0; i < depth; i++) {
@@ -180,6 +182,9 @@ public class Day11 {
             steps++;
 
             if (flashed.size() == length * depth) {
+                flashed.forEach((fo) -> {
+                    map[fo.x][fo.y] = 0;
+                });
                 return steps;
             }
 
@@ -190,7 +195,7 @@ public class Day11 {
     }
 
     public static void main ( String[] args) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day11.txt"));
+        final List<String> input = InputReader.readLines("Day11.txt");
         final int length = input.get(0).length();
         final int depth = input.size();
 

@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,12 +19,15 @@ public class Day14 {
         }
 
         public long pairInsertion(int steps) {
+            if (polymerTemplate == null || polymerTemplate.isEmpty()) {
+                throw new IllegalArgumentException("Polymer template must not be null or empty");
+            }
             final LinkedList<String> builder = new LinkedList<>();
             for (Character c : polymerTemplate.toCharArray()) {
                 builder.addLast(c.toString());
             }
 
-            while (steps != 0) {
+            while (steps > 0) {
                 for (int i = 0; i < builder.size()-1; i++) {
                     final String val = insertionRules.get(builder.get(i) + "" + builder.get(i+1));
                     if (val != null) {
@@ -39,13 +40,12 @@ public class Day14 {
 
             final Map<String, Long> map = new HashMap<>();
             builder.forEach((e) -> {
-                if (map.containsKey(e)) {
-                    map.put(e, map.get(e) + 1);
-                } else {
-                    map.put(e, 1L);
-                }
+                map.merge(e, 1L, Long::sum);
             });
 
+            if (map.isEmpty()) {
+                throw new IllegalStateException("Cannot compute max/min of empty polymer");
+            }
             final long max = map.values().stream().max(Long::compareTo).get();
             final long min = map.values().stream().min(Long::compareTo).get();
     
@@ -64,6 +64,9 @@ public class Day14 {
         }
 
         public long pairInsertionOptimised(int steps) {
+            if (polymerTemplate == null || polymerTemplate.isEmpty()) {
+                throw new IllegalArgumentException("Polymer template must not be null or empty");
+            }
             final Map<String, Long> map = new HashMap<>();
             insertionRules.values().forEach((v) -> {
                 map.put(v, 0L);
@@ -80,20 +83,24 @@ public class Day14 {
 
             for (int i = 0; i < polymerTemplate.length()-1; i++) {
                 final String pair = polymerTemplate.charAt(i) + "" + polymerTemplate.charAt(i+1);
-                pairs.put(pair, pairs.get(pair) + 1);
+                pairs.put(pair, pairs.getOrDefault(pair, 0L) + 1);
             }
 
-            while (steps != 0) {
+            while (steps > 0) {
                 for (String p : pairs.keySet()) {
-                    if (pairs.get(p) > 0) {
-                        expansion.get(p).forEach((cmb) -> {
-                            counter.put(cmb, counter.get(cmb) + pairs.get(p));
+                    if (pairs.getOrDefault(p, 0L) > 0) {
+                        final List<String> exp = expansion.get(p);
+                        if (exp == null) {
+                            continue;
+                        }
+                        exp.forEach((cmb) -> {
+                            counter.put(cmb, counter.getOrDefault(cmb, 0L) + pairs.getOrDefault(p, 0L));
                         });
                     }
                 }
 
                 counter.keySet().forEach((k) -> {
-                    pairs.put(k, counter.get(k));
+                    pairs.put(k, counter.getOrDefault(k, 0L));
                     counter.put(k, 0L);
                 });
 
@@ -102,12 +109,15 @@ public class Day14 {
 
             pairs.forEach((k, v) -> {
                 final String c = k.charAt(0) + "";
-                map.put(c, map.get(c) + v);
+                map.put(c, map.getOrDefault(c, 0L) + v);
             });
 
             final String lastChar = polymerTemplate.charAt(polymerTemplate.length()-1) + "";
-            map.put(lastChar, map.get(lastChar) + 1);
+            map.put(lastChar, map.getOrDefault(lastChar, 0L) + 1);
 
+            if (map.isEmpty()) {
+                throw new IllegalStateException("Cannot compute max/min of empty polymer");
+            }
             final long max = map.values().stream().max(Long::compareTo).get();
             final long min = map.values().stream().min(Long::compareTo).get();
     
@@ -134,7 +144,7 @@ public class Day14 {
     }
     
     public static void main ( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day14.txt"));
+        final List<String> input = InputReader.readLines("Day14.txt");
         final String template = input.stream().filter(str -> !str.isEmpty() && !str.contains("->")).findFirst().get();
         final Map<String, String> insertionRules = generateInsertionRules(input.stream().filter(str -> str.contains("->")).toList());
 

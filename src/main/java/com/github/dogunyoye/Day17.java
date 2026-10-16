@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,11 +66,7 @@ public class Day17 {
     }
 
     private static boolean withinTargetArea(Probe p, int[] bounds) {
-        if (p.x >= bounds[0] && p.x <= bounds[1] && p.y >= bounds[2] && p.y <= bounds[3]) {
-            return true;
-        }
-
-        return false;
+        return p.x >= bounds[0] && p.x <= bounds[1] && p.y >= bounds[2] && p.y <= bounds[3];
     }
 
     private static void applyVelocityToProbe(int[] bounds, Map<Velocity, List<Coordinate>> landedVelocities, Probe p, Velocity v) {
@@ -118,6 +112,10 @@ public class Day17 {
 
         // lovely brute force...
         // smarter solution most likely possible
+        // Assumption: target is to the right of the origin (x > 0), so only
+        // positive x velocities can reach it; x velocities that overshoot due
+        // to drag are bounded, and a generous [1,1000] x [-1000,1000] search
+        // covers all plausible AoC inputs (derived from max target extent).
         for (int x = 1; x <= 1000; x++) {
             for (int y = -1000; y <= 1000; y++) {
                 final Probe p = new Probe(0, 0);
@@ -142,6 +140,9 @@ public class Day17 {
 
     public static int findLargestHeight(int[] bounds) {
         final Map<Velocity, List<Coordinate>> landed = simulateProbeTrajectory(bounds);
+        // Probe starts at y=0, so 0 is a safe initial max; heights below 0
+        // can never exceed it and any successful arc reaching a target at
+        // or below 0 still peaks at >= 0.
         int maxHeight = 0;
 
         for(List<Coordinate> coords : landed.values()) {
@@ -159,7 +160,7 @@ public class Day17 {
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day17.txt"));
+        final List<String> input = InputReader.readLines("Day17.txt");
         final int[] bounds = getBounds(input);
 
         System.out.println("Part 1: " + findLargestHeight(bounds));

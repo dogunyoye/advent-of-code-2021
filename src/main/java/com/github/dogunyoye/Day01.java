@@ -1,12 +1,13 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Day01 {
 
     public static int calculateIncreases(int[] depths) {
+        if (depths == null || depths.length == 0) {
+            return 0;
+        }
         int increases = 0;
         for (int i = 0; i < depths.length - 1; i++) {
             if (depths[i] < depths[i+1]) {
@@ -18,10 +19,14 @@ public class Day01 {
     }
 
     public static int calculateIncreasesSlidingWindow(int[] depths) {
+        if (depths == null || depths.length == 0) {
+            return 0;
+        }
         int increases = 0;
-        for (int i = 0; i < depths.length - 2; i++) {
-            depths[i] = depths[i] + depths[i+1] + depths[i+2];
-            if (i > 0 && depths[i-1] < depths[i]) {
+        for (int i = 0; i < depths.length - 3; i++) {
+            final int current = depths[i] + depths[i+1] + depths[i+2];
+            final int next = depths[i+1] + depths[i+2] + depths[i+3];
+            if (current < next) {
                 increases++;
             }
         }
@@ -30,7 +35,7 @@ public class Day01 {
     }
 
     public static void main( String[] args ) throws IOException {
-        final int[] depths = Files.readAllLines(Path.of("src/main/resources/Day01.txt"))
+        final int[] depths = InputReader.readLines("Day01.txt")
                 .stream()
                 .mapToInt(num -> Integer.parseInt(num))
                 .toArray();

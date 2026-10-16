@@ -1,105 +1,83 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 public class Day10 {
 
-    private static String checkParentheses(String line, List<String> incompleteLines) {
-        final String[] split = line.split("");
-        final Stack<String> stack = new Stack<String>();
+    private static final Map<Character, Character> OPEN_TO_CLOSE = Map.of(
+        '(', ')', '[', ']', '{', '}', '<', '>');
+    private static final Map<Character, Integer> CORRUPT_SCORES = Map.of(
+        ')', 3, ']', 57, '}', 1197, '>', 25137);
+    private static final Map<Character, Integer> COMPLETE_SCORES = Map.of(
+        ')', 1, ']', 2, '}', 3, '>', 4);
 
-        for (String p : split) {
-            if (!p.equals(")") && !p.equals("]") && !p.equals("}") && !p.equals(">")) {
+    private static Character checkParentheses(String line, List<String> incompleteLines) {
+        final Deque<Character> stack = new ArrayDeque<>();
+
+        for (int i = 0; i < line.length(); i++) {
+            final char p = line.charAt(i);
+            if (OPEN_TO_CLOSE.containsKey(p)) {
                 stack.push(p);
                 continue;
             }
 
-            final String popped = stack.pop();
-            switch(p) {
-                case ")":
-                    if (!popped.equals("(")) {
-                        return p;
-                    }
-                    break;
-                case "]":
-                    if (!popped.equals("[")) {
-                        return p;
-                    }
-                    break;
-                case "}":
-                    if (!popped.equals("{")) {
-                        return p;
-                    }
-                    break;
-                case ">":
-                    if (!popped.equals("<")) {
-                        return p;
-                    }
-                    break;
+            if (stack.isEmpty()) {
+                return p;
+            }
+            final char popped = stack.pop();
+            if (OPEN_TO_CLOSE.get(popped) != p) {
+                return p;
             }
         }
 
         if (!stack.isEmpty()) {
-            incompleteLines.add(stack.stream().collect(Collectors.joining("")));
+            // ArrayDeque iterator goes head (top) -> tail (bottom);
+            // Stack.stream() went bottom -> top, so iterate tail -> head
+            // to preserve the original bottom-first ordering.
+            final StringBuilder sb = new StringBuilder();
+            for (var it = stack.descendingIterator(); it.hasNext();) {
+                sb.append(it.next());
+            }
+            incompleteLines.add(sb.toString());
         }
 
-        return "";
+        return null;
     }
 
-    private static List<String> completeParentheses(String line) {
-        final List<String> result = new ArrayList<>();
-        final Stack<String> stack = new Stack<String>();
-        final String[] split = line.split("");
+    private static List<Character> completeParentheses(String line) {
+        final List<Character> result = new ArrayList<>();
+        final Deque<Character> stack = new ArrayDeque<>();
 
-        for (String p : split) {
-            stack.add(p);
+        for (int i = 0; i < line.length(); i++) {
+            stack.push(line.charAt(i));
         }
 
         while(!stack.isEmpty()) {
-            final String popped = stack.pop();
-            switch(popped) {
-                case "(":
-                    result.add(")");
-                    break;
-                case "[":
-                    result.add("]");
-                    break;
-                case "{":
-                    result.add("}");
-                    break;
-                case "<":
-                    result.add(">");
-                    break;
+            final char popped = stack.pop();
+            final Character closer = OPEN_TO_CLOSE.get(popped);
+            if (closer != null) {
+                result.add(closer);
+            } else {
+                throw new IllegalArgumentException("Unexpected closer in incomplete line: " + popped);
             }
         }
 
         return result;
     }
 
-    private static long getCompletedScore(List<String> completed) {
+    private static long getCompletedScore(List<Character> completed) {
         long score = 0;
-        for (String c : completed) {
-            score *= 5;
-            switch(c) {
-                case ")":
-                    score += 1;
-                    break;
-                case "]":
-                    score += 2;
-                    break;
-                case "}":
-                    score += 3;
-                    break;
-                case ">":
-                    score += 4;
-                    break;
+        for (char c : completed) {
+            final Integer points = COMPLETE_SCORES.get(c);
+            if (points == null) {
+                throw new IllegalArgumentException("Unknown completion char: " + c);
             }
+            score = score * 5 + points;
         }
 
         return score;
@@ -109,22 +87,12 @@ public class Day10 {
         int sum = 0;
 
         for (String line : input) {
-            final String val = checkParentheses(line, incompleteLines);
-            switch(val) {
-                case ")":
-                    sum += 3;
-                    break;
-                case "]":
-                    sum += 57;
-                    break;
-                case "}":
-                    sum += 1197;
-                    break;
-                case ">":
-                    sum += 25137;
-                    break;
-                default:
-                    // do nothing, incomplete or valid
+            final Character val = checkParentheses(line, incompleteLines);
+            if (val != null) {
+                final Integer points = CORRUPT_SCORES.get(val);
+                if (points != null) {
+                    sum += points;
+                }
             }
         }
 
@@ -132,6 +100,9 @@ public class Day10 {
     }
 
     public static long getScoreForIncompleteLine(List<String> incompleteLines) {
+        if (incompleteLines.isEmpty()) {
+            throw new IllegalArgumentException("No incomplete lines to score");
+        }
         List<Long> completedScores = new ArrayList<>();
         incompleteLines.forEach((line) -> {
             completedScores.add(getCompletedScore(completeParentheses(line)));
@@ -142,7 +113,7 @@ public class Day10 {
     }
 
     public static void main( String[] args) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day10.txt"));
+        final List<String> input = InputReader.readLines("Day10.txt");
         final List<String> incompleteLines = new ArrayList<>();
 
         System.out.println("Part 1: " + getSyntaxErrorScore(input, incompleteLines));

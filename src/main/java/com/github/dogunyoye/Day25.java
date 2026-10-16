@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +10,18 @@ public class Day25 {
     private record Position(int i, int j) { };
 
     private static char[][] buildMap(List<String> data) {
+        if (data == null || data.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be empty");
+        }
         final int mapLength = data.get(0).length();
+        if (mapLength == 0) {
+            throw new IllegalArgumentException("Input rows must not be empty");
+        }
+        for (final String row : data) {
+            if (row.length() != mapLength) {
+                throw new IllegalArgumentException("Ragged input: all rows must have the same length");
+            }
+        }
         final int mapDepth = data.size();
         final char[][] map = new char[mapDepth][mapLength];
 
@@ -91,7 +100,7 @@ public class Day25 {
     }
 
     public static void main(String[] args) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day25.txt"));
+        final List<String> input = InputReader.readLines("Day25.txt");
         System.out.println("Part 1: " + findNumberOfStepsUntilStationarySeaCucumbers(input));
     }
 }

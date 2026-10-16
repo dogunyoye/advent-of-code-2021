@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,15 +75,25 @@ public class Day21 {
     }
 
     public static Player[] generatePlayers(List<String> input) {
+        if (input == null || input.size() < 2) {
+            throw new IllegalArgumentException("Expected at least 2 player lines, got: " + input);
+        }
         final Player[] players = new Player[2];
         int idx = 0;
 
         PlayerName name = PlayerName.PLAYER_ONE;
 
         for (String line : input) {
-            final int position = Integer.parseInt(line.split(" ")[4]);
+            final String[] parts = line.trim().split("\\s+");
+            if (parts.length < 5) {
+                throw new IllegalArgumentException("Malformed player line: " + line);
+            }
+            final int position = Integer.parseInt(parts[4]);
             players[idx] = new Player(name, position);
             idx++;
+            if (idx >= 2) {
+                break;
+            }
 
             name = PlayerName.PLAYER_TWO;
         }
@@ -99,7 +107,7 @@ public class Day21 {
 
         while(true) {
             for (Player p : players) {
-                int spacesToMove = ((die%100)+1) + ((die%100)+2) + ((die%100)+3);
+                int spacesToMove = rollDie(die) + rollDie(die + 1) + rollDie(die + 2);
                 p.position = positions[((p.position + spacesToMove) % 10)];
                 p.score += p.position;
 
@@ -110,6 +118,10 @@ public class Day21 {
                 }
             }
         }
+    }
+
+    private static int rollDie(int die) {
+        return (die % 100) + 1;
     }
 
     private static long[] playQuantumDiracDice(
@@ -139,27 +151,26 @@ public class Day21 {
         final long[] count = new long[2];
         long[] win = new long[2];
 
-        for (int i = 1; i <= 3; i++) {
-            for (int j = 1; j <= 3; j++) {
-                for (int k = 1; k <= 3; k++) {
-                    final int spacesToMove = i + j + k;
+        // Dirac roll frequencies: 3:1, 4:3, 5:6, 6:7, 7:6, 8:3, 9:1
+        final int[] sums = {3, 4, 5, 6, 7, 8, 9};
+        final int[] freqs = {1, 3, 6, 7, 6, 3, 1};
 
-                    if (turn == PlayerName.PLAYER_ONE) {
-                        final int newPos = positions[((p1Pos + spacesToMove) % 10)];
-                        final int newScore = p1Score + newPos;
-                        win = playQuantumDiracDice(memo, newScore, p2Score, newPos, p2Pos, PlayerName.PLAYER_TWO);
-                    }
+        for (int s = 0; s < sums.length; s++) {
+            final int spacesToMove = sums[s];
+            final int freq = freqs[s];
 
-                    if (turn == PlayerName.PLAYER_TWO) {
-                        final int newPos = positions[((p2Pos + spacesToMove) % 10)];
-                        final int newScore = p2Score + newPos;
-                        win = playQuantumDiracDice(memo, p1Score, newScore, p1Pos, newPos, PlayerName.PLAYER_ONE);
-                    }
-
-                    count[0] += win[0];
-                    count[1] += win[1];
-                }
+            if (turn == PlayerName.PLAYER_ONE) {
+                final int newPos = positions[((p1Pos + spacesToMove) % 10)];
+                final int newScore = p1Score + newPos;
+                win = playQuantumDiracDice(memo, newScore, p2Score, newPos, p2Pos, PlayerName.PLAYER_TWO);
+            } else {
+                final int newPos = positions[((p2Pos + spacesToMove) % 10)];
+                final int newScore = p2Score + newPos;
+                win = playQuantumDiracDice(memo, p1Score, newScore, p1Pos, newPos, PlayerName.PLAYER_ONE);
             }
+
+            count[0] += win[0] * freq;
+            count[1] += win[1] * freq;
         }
 
         memo.put(gameState, count);
@@ -173,7 +184,7 @@ public class Day21 {
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day21.txt"));
+        final List<String> input = InputReader.readLines("Day21.txt");
 
         Player[] players = generatePlayers(input);
         System.out.println("Part 1: " + playDiracDice(players));

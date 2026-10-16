@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +56,11 @@ public class Day05 {
     }
 
     private static Coordinate createCoordinate(String coord) {
-        final int[] coords = Stream.of(coord.split(",")).mapToInt(Integer::parseInt).toArray();
+        final String[] parts = coord.trim().split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Malformed coordinate: " + coord);
+        }
+        final int[] coords = Stream.of(parts).mapToInt(s -> Integer.parseInt(s.trim())).toArray();
         return new Coordinate(coords[0], coords[1]);
         
     }
@@ -68,6 +70,9 @@ public class Day05 {
         stream
             .forEach((str) -> {
                 final String[] coords = str.split(" -> ");
+                if (coords.length != 2) {
+                    throw new IllegalArgumentException("Malformed line segment: " + str);
+                }
                 final Coordinate a = createCoordinate(coords[0]);
                 final Coordinate b = createCoordinate(coords[1]);
                 segments.add(new LineSegment(a, b));
@@ -77,11 +82,7 @@ public class Day05 {
     }
 
     private static void markCoordinate(Coordinate c, Map<Coordinate, Integer> intersections) {
-        if (intersections.containsKey(c)) {
-            intersections.put(c, intersections.get(c) + 1);
-        } else {
-            intersections.put(c, 1);
-        }
+        intersections.merge(c, 1, Integer::sum);
     }
 
     public static int findIntersections(List<LineSegment> segments, boolean withDiagonals) {
@@ -109,11 +110,18 @@ public class Day05 {
                         markCoordinate(new Coordinate(x, seg.a.y), intersections);
                     });
                 } else {
-                    final int m = (seg.a.y - seg.b.y)/(seg.a.x -seg.b.x);
-                    xRange.forEach((x) -> {
-                        int y = m * (x - seg.a.x) + seg.a.y;
-                        markCoordinate(new Coordinate(x, y), intersections);
-                    });
+                    final int dx = seg.b.x - seg.a.x;
+                    final int dy = seg.b.y - seg.a.y;
+                    if (Math.abs(dx) != Math.abs(dy)) {
+                        throw new IllegalArgumentException(
+                            "Only horizontal, vertical or 45-degree diagonal lines supported: " + seg.a + " -> " + seg.b);
+                    }
+                    final int steps = Math.abs(dx);
+                    final int xStep = Integer.signum(dx);
+                    final int yStep = Integer.signum(dy);
+                    for (int i = 1; i < steps; i++) {
+                        markCoordinate(new Coordinate(seg.a.x + i * xStep, seg.a.y + i * yStep), intersections);
+                    }
                 }
             });
 
@@ -121,7 +129,7 @@ public class Day05 {
     } 
 
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day05.txt"));
+        final List<String> input = InputReader.readLines("Day05.txt");
         final Supplier<Stream<String>> streamSupplier = () -> input.stream();
 
         final List<LineSegment> segments = generateLineSegments(streamSupplier.get());

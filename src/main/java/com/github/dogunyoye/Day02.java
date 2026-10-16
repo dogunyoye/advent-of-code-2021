@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -12,7 +10,7 @@ public class Day02 {
     public enum Command {
         FORWARD,
         DOWN,
-        UP;
+        UP
      }
 
     public static class Submarine {
@@ -23,7 +21,10 @@ public class Day02 {
 
     public static int moveSub(Stream<String> commands, Submarine sub) {
         commands.forEach((command) -> {
-            final String[] commandVals = command.split(" ");
+            final String[] commandVals = command.trim().split("\\s+");
+            if (commandVals.length != 2) {
+                throw new IllegalArgumentException("Malformed command: " + command);
+            }
             final Command c = Command.valueOf(commandVals[0].toUpperCase());
             final int units = Integer.parseInt(commandVals[1]);
 
@@ -34,12 +35,15 @@ public class Day02 {
             }
         });
 
-        return sub.depth * sub.horizontalPos;
+        return Math.toIntExact((long) sub.depth * (long) sub.horizontalPos);
     }
 
     public static int moveSubWithAim(Stream<String> commands, Submarine sub) {
         commands.forEach((command) -> {
-            final String[] commandVals = command.split(" ");
+            final String[] commandVals = command.trim().split("\\s+");
+            if (commandVals.length != 2) {
+                throw new IllegalArgumentException("Malformed command: " + command);
+            }
             final Command c = Command.valueOf(commandVals[0].toUpperCase());
             final int units = Integer.parseInt(commandVals[1]);
 
@@ -53,11 +57,11 @@ public class Day02 {
             }
         });
 
-        return sub.depth * sub.horizontalPos;
+        return Math.toIntExact((long) sub.depth * (long) sub.horizontalPos);
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> commands = Files.readAllLines(Path.of("src/main/resources/Day02.txt"));
+        final List<String> commands = InputReader.readLines("Day02.txt");
         final Supplier<Stream<String>> streamSupplier = () -> commands.stream();
 
         System.out.println("Part 1: " + moveSub(streamSupplier.get(), new Submarine()));

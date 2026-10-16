@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,18 +33,27 @@ public class Day08 {
                 results.put(4, seq);
             } else if (length == 3) {
                 results.put(7, seq);
-            } else {
+            } else if (length == 7) {
                 results.put(8, seq);
+            } else {
+                throw new IllegalArgumentException("Not a unique-segment length: " + length);
             }
         }
 
         private Set<Character> stringToSet(String s) {
-            final Character[] charArray = s.chars().mapToObj(c -> (char)c).toArray(Character[]::new);
-            return new HashSet<Character>(Arrays.asList(charArray));
+            final Set<Character> set = new HashSet<>();
+            for (int i = 0; i < s.length(); i++) {
+                set.add(s.charAt(i));
+            }
+            return set;
         }
 
         private Set<Character> getCharacterSet(int num) {
-            return stringToSet(results.get(num));
+            final String seq = results.get(num);
+            if (seq == null) {
+                throw new IllegalStateException("Digit " + num + " not deduced yet");
+            }
+            return stringToSet(seq);
         }
 
         private void decompose(int length, String seq) {
@@ -109,7 +115,7 @@ public class Day08 {
             });
 
             final List<String> inputsToSolve = Stream.concat(signalPattern.stream(), outputValue.stream())
-                .filter(s -> (s.length() != 2 || s.length() != 4 || s.length() != 3 || s.length() != 7))
+                .filter(s -> (s.length() != 2 && s.length() != 4 && s.length() != 3 && s.length() != 7))
                 .collect(Collectors.toList());
 
             // sort from smallest to largest
@@ -120,20 +126,25 @@ public class Day08 {
                 decompose(input.length(), input);
             });
 
-            String number = "";
+            StringBuilder number = new StringBuilder();
 
             for (String val : outputValue) {
                 final Set<Character> outputSet = stringToSet(val);
+                boolean matched = false;
                 for (Map.Entry<Integer, String> entry : results.entrySet()) {
                     final Set<Character> signalSet = stringToSet(entry.getValue());
                     if (outputSet.equals(signalSet)) {
-                        number += entry.getKey().toString();
+                        number.append(entry.getKey());
+                        matched = true;
                         break;
                     }
                 }
+                if (!matched) {
+                    throw new IllegalStateException("Could not deduce output value: " + val);
+                }
             }
 
-            return Integer.parseInt(number);    
+            return Integer.parseInt(number.toString());    
         }
     }
 
@@ -141,8 +152,11 @@ public class Day08 {
         final List<SignalEntry> signalEntries = new ArrayList<>();
         input.forEach((line) -> {
             final String[] split = line.split(" \\| ");
-            final List<String> sp = Arrays.asList(split[0].split(" "));
-            final List<String> ov = Arrays.asList(split[1].split(" "));
+            if (split.length != 2) {
+                throw new IllegalArgumentException("Malformed signal line: " + line);
+            }
+            final List<String> sp = Arrays.asList(split[0].trim().split("\\s+"));
+            final List<String> ov = Arrays.asList(split[1].trim().split("\\s+"));
             signalEntries.add(new SignalEntry(sp, ov));
         });
 
@@ -150,18 +164,17 @@ public class Day08 {
     }
 
     public static int findNumberOfUniqueSegments(List<SignalEntry> signalEntries) {
-        final AtomicInteger result = new AtomicInteger();
-        signalEntries.forEach((e) -> {
+        int result = 0;
+        for (SignalEntry e : signalEntries) {
             for (String ov : e.outputValue) {
                 final int l = ov.length();
                 if (l == 2 || l == 4 || l == 3 || l == 7) {
-                    e.logUniqueSegment(l, ov);
-                    result.incrementAndGet();
+                    result++;
                 }
             }
-        });
+        }
 
-        return result.get();
+        return result;
     }
 
     public static int findOutputValuesSum(List<SignalEntry> signalEntries) {
@@ -174,7 +187,7 @@ public class Day08 {
     }
 
     public static void main ( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day08.txt"));
+        final List<String> input = InputReader.readLines("Day08.txt");
         final List<SignalEntry> signalEntries = generateSignalEntries(input);
         
         System.out.println("Part 1: " + findNumberOfUniqueSegments(signalEntries));

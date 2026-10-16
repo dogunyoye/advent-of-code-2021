@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -167,9 +165,7 @@ public class Day15 {
             for (int i = 0; i < openSet.size(); i++) {
                 if (fScore.getOrDefault(openSet.get(i), 0) < fScore.getOrDefault(openSet.get(winner), 0)) {
                     winner = i;
-                }
-
-                if (fScore.getOrDefault(openSet.get(i), 0) == fScore.getOrDefault(openSet.get(winner), 0)) {
+                } else if (fScore.getOrDefault(openSet.get(i), 0) == fScore.getOrDefault(openSet.get(winner), 0)) {
                     if (gScore.getOrDefault(openSet.get(i), 0) > gScore.getOrDefault(openSet.get(winner), 0)) {
                         winner = i;
                     }
@@ -248,7 +244,11 @@ public class Day15 {
             }
         }
 
-        return costSoFar.get(end);
+        final Integer result = costSoFar.get(end);
+        if (result == null) {
+            throw new IllegalStateException("End node is unreachable from start");
+        }
+        return result;
     }
 
     public static long findLowestTotalRiskPath(int[][] map, Node start, Node end, int length, int depth) {
@@ -282,7 +282,7 @@ public class Day15 {
                 m = i % originalLength;
                 int val = map[currHeight][m] + inc;
                 if (val > 9) {
-                    val = val % 9;
+                    val = (val - 1) % 9 + 1;
                 }
 
                 line[i] = val;
@@ -309,7 +309,7 @@ public class Day15 {
 
                 int val = map[currRow][i] + inc;
                 if (val > 9 ) {
-                    val = val % 9;
+                    val = (val - 1) % 9 + 1;
                 }
 
                 line[i] = val;
@@ -317,7 +317,7 @@ public class Day15 {
 
             ++counter;
             ++currRow;
-            if (counter % originalLength == 0) {
+            if (counter % originalDepth == 0) {
                 currRow = 0;
                 inc++;
             }
@@ -338,7 +338,7 @@ public class Day15 {
     }
 
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day15.txt"));
+        final List<String> input = InputReader.readLines("Day15.txt");
         final int length = input.get(0).length();
         final int depth = input.size();
 

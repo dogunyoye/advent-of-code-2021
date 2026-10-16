@@ -1,9 +1,7 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -16,9 +14,12 @@ public class Day03 {
 
     public static int findPowerConsumption(List<String> report) {
 
+        if (report == null || report.isEmpty()) {
+            throw new IllegalArgumentException("Report must not be null or empty");
+        }
         final int length = report.get(0).length();
-        final StringBuilder gammaString = new StringBuilder(String.join("", Collections.nCopies(length, "0")));
-        final StringBuilder epsilonString = new StringBuilder(String.join("", Collections.nCopies(length, "0")));
+        final StringBuilder gammaString = new StringBuilder("0".repeat(length));
+        final StringBuilder epsilonString = new StringBuilder("0".repeat(length));
 
         for (int i = 0; i < length; i++) {
             int countZeros = 0;
@@ -39,11 +40,15 @@ public class Day03 {
             }
         }
 
-        return Integer.parseInt(gammaString.toString(), 2) * Integer.parseInt(epsilonString.toString(), 2);
+        return Math.toIntExact(Long.parseLong(gammaString.toString(), 2) * Long.parseLong(epsilonString.toString(), 2));
     }
 
     private static int findRating(List<String> report, ReportFilter<Integer, Integer, Integer, List<String>> filter) {
 
+        if (report == null || report.isEmpty()) {
+            throw new IllegalArgumentException("Report must not be null or empty");
+        }
+        report = new ArrayList<>(report);
         final int length = report.get(0).length();
 
         while (true) {
@@ -59,10 +64,13 @@ public class Day03 {
                     }
                 }
             
-                report = filter.apply(countZeros, countOnes, i, report);
+                report = new ArrayList<>(filter.apply(countZeros, countOnes, i, report));
+                if (report.isEmpty()) {
+                    throw new IllegalStateException("Filter eliminated all entries at index " + i);
+                }
 
                 if (report.size() == 1) {
-                    return Integer.parseInt(report.get(0), 2);
+                    return Math.toIntExact(Long.parseLong(report.get(0), 2));
                 }
             }
         }
@@ -71,7 +79,7 @@ public class Day03 {
     public static int findLifeSupportRating(List<String> report1, List<String> report2) {
 
         final ReportFilter<Integer, Integer, Integer, List<String>> oxygenGeneratorRatingFilter = (zeroes, ones, idx, report) -> {
-            if (zeroes < ones || zeroes == ones) {
+            if (zeroes <= ones) {
                 return report.stream().filter(num -> num.charAt(idx) == '1').toList();
             } else if (zeroes > ones) {
                 return report.stream().filter(num -> num.charAt(idx) == '0').toList();
@@ -81,7 +89,7 @@ public class Day03 {
         };
 
         final ReportFilter<Integer, Integer, Integer, List<String>> c02ScrubberRatingFilter = (zeroes, ones, idx, report) -> {
-            if (zeroes < ones || zeroes == ones) {
+            if (zeroes <= ones) {
                 return report.stream().filter(num -> num.charAt(idx) == '0').toList();
             } else if (zeroes > ones) {
                 return report.stream().filter(num -> num.charAt(idx) == '1').toList();
@@ -94,7 +102,7 @@ public class Day03 {
     }
 
     public static void main( String[] args ) throws IOException {
-        final List<String> report = Files.readAllLines(Path.of("src/main/resources/Day03.txt"));
+        final List<String> report = InputReader.readLines("Day03.txt");
         final Supplier<List<String>> reportSupplier = () -> report.stream().toList();
 
         System.out.println("Part 1: " + findPowerConsumption(reportSupplier.get()));

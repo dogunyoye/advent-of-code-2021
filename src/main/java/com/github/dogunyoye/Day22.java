@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +41,7 @@ public class Day22 {
             result = prime * result + yMax;
             result = prime * result + zMin;
             result = prime * result + zMax;
+            result = prime * result + ((state == null) ? 0 : state.hashCode());
             return result;
         }
 
@@ -66,6 +65,11 @@ public class Day22 {
             if (zMin != other.zMin)
                 return false;
             if (zMax != other.zMax)
+                return false;
+            if (state == null) {
+                if (other.state != null)
+                    return false;
+            } else if (!state.equals(other.state))
                 return false;
             return true;
         }
@@ -116,32 +120,42 @@ public class Day22 {
     }
 
     private static Pair<String, Set<Cube>> parse(String line) {
+        if (line == null || line.isBlank()) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final String[] split = line.split(" ");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final String state = split[0];
 
         final String[] coordsSplit = split[1].split(",");
+        if (coordsSplit.length != 3) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
 
         final String[] xSplit = coordsSplit[0].replaceAll("x=", "").split("\\.\\.");
-        final int xLower = Integer.parseInt(xSplit[0]);
-        final int xUpper = Integer.parseInt(xSplit[1]);
-
-        if (!withinBounds(xLower, xUpper)) {
-            return null;
+        if (xSplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
+        final int xLower = Math.max(Integer.parseInt(xSplit[0]), -50);
+        final int xUpper = Math.min(Integer.parseInt(xSplit[1]), 50);
 
         final String[] ySplit = coordsSplit[1].replaceAll("y=", "").split("\\.\\.");
-        final int yLower = Integer.parseInt(ySplit[0]);
-        final int yUpper = Integer.parseInt(ySplit[1]);
-
-        if (!withinBounds(yLower, yUpper)) {
-            return null;
+        if (ySplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
         }
+        final int yLower = Math.max(Integer.parseInt(ySplit[0]), -50);
+        final int yUpper = Math.min(Integer.parseInt(ySplit[1]), 50);
 
         final String[] zSplit = coordsSplit[2].replaceAll("z=", "").split("\\.\\.");
-        final int zLower = Integer.parseInt(zSplit[0]);
-        final int zUpper = Integer.parseInt(zSplit[1]);
+        if (zSplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
+        final int zLower = Math.max(Integer.parseInt(zSplit[0]), -50);
+        final int zUpper = Math.min(Integer.parseInt(zSplit[1]), 50);
 
-        if (!withinBounds(zLower, zUpper)) {
+        if (xLower > xUpper || yLower > yUpper || zLower > zUpper) {
             return null;
         }
 
@@ -159,20 +173,38 @@ public class Day22 {
     }
 
     static Cuboid createCuboid(String line) {
+        if (line == null || line.isBlank()) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final String[] split = line.split(" ");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final String state = split[0];
 
         final String[] coordsSplit = split[1].split(",");
+        if (coordsSplit.length != 3) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
 
         final String[] xSplit = coordsSplit[0].replaceAll("x=", "").split("\\.\\.");
+        if (xSplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final int xLower = Integer.parseInt(xSplit[0]);
         final int xUpper = Integer.parseInt(xSplit[1]);
 
         final String[] ySplit = coordsSplit[1].replaceAll("y=", "").split("\\.\\.");
+        if (ySplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final int yLower = Integer.parseInt(ySplit[0]);
         final int yUpper = Integer.parseInt(ySplit[1]);
 
         final String[] zSplit = coordsSplit[2].replaceAll("z=", "").split("\\.\\.");
+        if (zSplit.length != 2) {
+            throw new IllegalArgumentException("Malformed reboot step: " + line);
+        }
         final int zLower = Integer.parseInt(zSplit[0]);
         final int zUpper = Integer.parseInt(zSplit[1]);
 
@@ -215,25 +247,17 @@ public class Day22 {
                 final Cuboid intersection = new Cuboid(xMin, xMax, yMin, yMax, zMin, zMax, null);
 
                 if ((xMin <= xMax) && (yMin <= yMax) && (zMin <= zMax)) {
-                    if (!temp.containsKey(intersection)) {
-                        temp.put(intersection, -e.getValue());
-                    } else {
-                        temp.put(intersection, temp.get(intersection) - e.getValue());
-                    }
+                    temp.merge(intersection, -e.getValue(), Integer::sum);
                 }
             }
 
             if (sign == 1) {
                 // an 'on' cuboid
-                count.put(c0, sign);
+                count.merge(c0, sign, Integer::sum);
             }
 
             for (final Entry<Cuboid, Integer> e : temp.entrySet()) {
-                if (!count.containsKey(e.getKey())) {
-                    count.put(e.getKey(), e.getValue());
-                } else {
-                    count.put(e.getKey(), count.get(e.getKey()) + e.getValue());
-                }
+                count.merge(e.getKey(), e.getValue(), Integer::sum);
             }
         }
 
@@ -255,7 +279,7 @@ public class Day22 {
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day22.txt"));
+        final List<String> input = InputReader.readLines("Day22.txt");
         System.out.println("Part 1: " + findOnCubesConstrained(input));
         System.out.println("Part 2: " + findOnCubesUnconstrained(input));
     }

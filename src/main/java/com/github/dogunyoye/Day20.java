@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +135,12 @@ public class Day20 {
     }
 
     public static char[] generateImageAlgorithm(List<String> input) {
+        if (input == null || input.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be empty");
+        }
+        if (input.get(0).length() != 512) {
+            throw new IllegalArgumentException("Image algorithm must be 512 characters long");
+        }
         final char[] imageAlgorithm = new char[512];
         int idx = 0;
 
@@ -149,6 +153,9 @@ public class Day20 {
     }
 
     public static Map<Coordinate, Character> generateInitialInputImage(List<String> input, int buffer) {
+        if (input == null || input.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be empty");
+        }
         final Map<Coordinate, Character> initial = new HashMap<>();
 
         // create a +/-buffer border
@@ -180,6 +187,12 @@ public class Day20 {
         int idx,
         int steps) {
 
+        if (imageAlgorithm == null || imageAlgorithm.length != 512) {
+            throw new IllegalArgumentException("Image algorithm must be 512 characters long");
+        }
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("Image must not be empty");
+        }
         char boundState = '.';
 
         while (steps != 0) {
@@ -197,7 +210,8 @@ public class Day20 {
             });
 
             // infinite boundary flips between on/off
-            boundState = steps % 2 == 0 ? imageAlgorithm[0] : imageAlgorithm[511];
+            // track bound char across iterations, not steps parity
+            boundState = boundState == '.' ? imageAlgorithm[0] : imageAlgorithm[511];
             steps--;
         }
 
@@ -205,7 +219,7 @@ public class Day20 {
     }
     
     public static void main( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day20.txt"));
+        final List<String> input = InputReader.readLines("Day20.txt");
         final char[] imageAlgorithm = generateImageAlgorithm(input);
         final int idx = input.size() - 1;
 

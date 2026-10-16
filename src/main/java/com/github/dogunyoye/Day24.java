@@ -1,28 +1,27 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Day24 {
 
     private static class ALU {
-        private int w;
-        private int x;
-        private int y;
-        private int z;
+        private long w;
+        private long x;
+        private long y;
+        private long z;
 
-        private ALU(int w, int x, int y, int z) {
+        private ALU(long w, long x, long y, long z) {
             this.w = w;
             this.x = x;
             this.y = y;
             this.z = z;
         }
 
-        private int getValue(String variable) {
+        private long getValue(String variable) {
             if (variable.matches("[wxyz]")) {
                 return switch(variable) {
                     case "w" -> w;
@@ -33,10 +32,10 @@ public class Day24 {
                 };
             }
             
-            return Integer.parseInt(variable);
+            return Long.parseLong(variable);
         }
 
-        private void inp(char reg, int inp) {
+        private void inp(char reg, long inp) {
             switch(reg) {
                 case 'w' -> w = inp;
                 case 'x' -> x = inp;
@@ -47,7 +46,7 @@ public class Day24 {
         }
 
         private void add(char reg, String variable) {
-            final int inp = getValue(variable);
+            final long inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w += inp;
                 case 'x' -> x += inp;
@@ -58,7 +57,7 @@ public class Day24 {
         }
 
         private void mul(char reg, String variable) {
-            final int inp = getValue(variable);
+            final long inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w *= inp;
                 case 'x' -> x *= inp;
@@ -69,7 +68,7 @@ public class Day24 {
         }
 
         private void div(char reg, String variable) {
-            final int inp = getValue(variable);
+            final long inp = getValue(variable);
             if (inp == 0) {
                 throw new ArithmeticException("Cannot divide by 0");
             }
@@ -84,7 +83,7 @@ public class Day24 {
         }
 
         private void mod(char reg, String variable) {
-            final int inp = getValue(variable);
+            final long inp = getValue(variable);
             if (inp <= 0) {
                 throw new ArithmeticException("Cannot mod by value: " + inp);
             }
@@ -99,21 +98,21 @@ public class Day24 {
 
                 case 'x' -> {
                     if (x < 0) {
-                        throw new ArithmeticException("Cannot mod by value at x: " + w);
+                        throw new ArithmeticException("Cannot mod by value at x: " + x);
                     }
                     x %= inp;
                 }
 
                 case 'y' -> {
                     if (y < 0) {
-                        throw new ArithmeticException("Cannot mod by value at y: " + w);
+                        throw new ArithmeticException("Cannot mod by value at y: " + y);
                     }
                     y %= inp;
                 }
 
                 case 'z' -> {
                     if (z < 0) {
-                        throw new ArithmeticException("Cannot mod by value at z: " + w);
+                        throw new ArithmeticException("Cannot mod by value at z: " + z);
                     }
                     z %= inp;
                 }
@@ -123,7 +122,7 @@ public class Day24 {
         }
 
         private void eql(char reg, String variable) {
-            final int inp = getValue(variable);
+            final long inp = getValue(variable);
             switch(reg) {
                 case 'w' -> w = w == inp ? 1 : 0;
                 case 'x' -> x = x == inp ? 1 : 0;
@@ -140,6 +139,12 @@ public class Day24 {
     }
 
     private static List<List<String>> createSubprograms(List<String> input) {
+        if (input == null || input.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be empty");
+        }
+        if (input.size() % 18 != 0) {
+            throw new IllegalArgumentException("Input size must be a multiple of 18, was: " + input.size());
+        }
         final List<List<String>> subPrograms = new ArrayList<>();
         for (int i = 0; i < input.size(); i+=18) {
             subPrograms.add(input.subList(i, i+18));
@@ -170,7 +175,7 @@ public class Day24 {
             }
 
             switch(parts[0]) {
-                case "inp" -> alu.inp(reg, Integer.parseInt(variable));
+                case "inp" -> alu.inp(reg, Long.parseLong(variable));
                 case "add" -> alu.add(reg, variable);
                 case "mul" -> alu.mul(reg, variable);
                 case "div" -> alu.div(reg, variable);
@@ -244,9 +249,9 @@ public class Day24 {
     }
     
     public static void main(String[] args) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day24.txt"));
+        final List<String> input = InputReader.readLines("Day24.txt");
         final List<Long> acceptedNumbers = findModelNumbersAcceptedByMONAD(input);
-        System.out.println("Part 1: " + acceptedNumbers.get(0));
-        System.out.println("Part 2: " + acceptedNumbers.get(acceptedNumbers.size() - 1));
+        System.out.println("Part 1: " + Collections.max(acceptedNumbers));
+        System.out.println("Part 2: " + Collections.min(acceptedNumbers));
     }
 }

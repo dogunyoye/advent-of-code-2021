@@ -1,8 +1,6 @@
 package com.github.dogunyoye;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -128,8 +126,17 @@ public class Day09 {
     }
 
     public static int[][] generateMap(List<String> input) {
-        int currentHeight = 0;
+        if (input == null || input.isEmpty()) {
+            throw new IllegalArgumentException("Input must not be null or empty");
+        }
         final int length = input.get(0).length();
+        for (String line : input) {
+            if (line == null || line.length() != length) {
+                throw new IllegalArgumentException("Input must not be ragged: all lines must have equal length");
+            }
+        }
+
+        int currentHeight = 0;
 
         final int[][] map = new int[input.size()][length];
         for (String line : input) {
@@ -170,11 +177,14 @@ public class Day09 {
         });
 
         basinSizes.sort(Integer::compareTo);
+        if (basinSizes.size() < 3) {
+            throw new IllegalStateException("Not enough basins found: expected at least 3 but got " + basinSizes.size());
+        }
         return basinSizes.get(basinSizes.size()-1) * basinSizes.get(basinSizes.size()-2) * basinSizes.get(basinSizes.size()-3);
     }
 
     public static void main( String[] args) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day09.txt"));
+        final List<String> input = InputReader.readLines("Day09.txt");
         final int length = input.get(0).length();
         final int depth = input.size();
 

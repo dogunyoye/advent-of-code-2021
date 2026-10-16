@@ -1,7 +1,5 @@
 package com.github.dogunyoye;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +47,7 @@ public class Day13 {
         maxX++;
         maxY++;
 
-        final String[][] paper = new String[maxY+1][maxX+1];
+        final String[][] paper = new String[maxY][maxX];
         for (String[] e : paper) {
             Arrays.fill(e, ".");
         }
@@ -68,11 +66,16 @@ public class Day13 {
         final List<FoldInstruction> fInstructions = new ArrayList<>();
         instructions.forEach((ins) -> {
             final String[] split = ins.split(" ")[2].split("=");
+            if (split.length != 2) {
+                throw new IllegalArgumentException("Invalid fold instruction: " + ins);
+            }
             final int line = Integer.parseInt(split[1]);
             if (split[0].equals("y")) {
                 fInstructions.add(new FoldInstruction(Fold.UP, line));
-            } else {
+            } else if (split[0].equals("x")) {
                 fInstructions.add(new FoldInstruction(Fold.LEFT, line));
+            } else {
+                throw new IllegalArgumentException("Invalid fold axis, only x/y allowed: " + ins);
             }
         });
 
@@ -88,6 +91,9 @@ public class Day13 {
                 for (int yy = ins.line + 1; yy < yBound; yy++) {
                     for (int xx = 0; xx < xBound; xx++) {
                         final int newY = (2 * ins.line) - yy;
+                        if (newY < 0) {
+                            throw new IllegalArgumentException("Fold reflection out of bounds: newY=" + newY);
+                        }
                         if (paper[yy][xx].equals("#")) {
                             paper[newY][xx] = "#";
                             paper[yy][xx] = ".";
@@ -100,6 +106,9 @@ public class Day13 {
                 for (int yy = 0; yy < yBound; yy++) {
                     for (int xx = ins.line + 1; xx < xBound; xx++) {
                         final int newX = (2 * ins.line) - xx;
+                        if (newX < 0) {
+                            throw new IllegalArgumentException("Fold reflection out of bounds: newX=" + newX);
+                        }
                         if (paper[yy][xx].equals("#")) {
                             paper[yy][newX] = "#";
                             paper[yy][xx] = ".";
@@ -132,7 +141,7 @@ public class Day13 {
     }
 
     public static void main ( String[] args ) throws IOException {
-        final List<String> input = Files.readAllLines(Path.of("src/main/resources/Day13.txt"));
+        final List<String> input = InputReader.readLines("Day13.txt");
         final List<String> dots = input.stream().filter(str -> str.contains(",")).toList();
         final List<String> instructions = input.stream().filter(str -> str.contains("fold along")).toList();
 
